@@ -2,6 +2,7 @@ using System.IO;
 using System.Threading.Tasks;
 using CarBootFinderAPI.Assemblers;
 using CarBootFinderAPI.Data;
+using CarBootFinderAPI.Models;
 using CarBootFinderAPI.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
