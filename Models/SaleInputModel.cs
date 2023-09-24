@@ -1,8 +1,7 @@
 
 namespace CarBootFinderAPI.Models;
 
-public class SaleInputModel
+public class SaleInputModel : SaleBase
 {
-    public string Name { get; set; }
-    public bool? Refreshments { get; set; }
+    
 }

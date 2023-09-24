@@ -10,7 +10,16 @@ public class SaleAssembler : ISaleAssembler
         return new SaleModel()
         {
             Id = ObjectId.GenerateNewId(),
-            Name = saleInputModel.Name
+            Name = saleInputModel.Name,
+            Refreshments = saleInputModel.Refreshments,
+            Location = new Location()
+            {
+                Coordinates = new float[]
+                {
+                    saleInputModel.Location.Coordinates[0],
+                    saleInputModel.Location.Coordinates[1]
+                }
+            }
         };
     }
 
@@ -24,5 +33,12 @@ public class SaleAssembler : ISaleAssembler
 
         return saleModel;
     }
-    
+
+    public Location CreateLocation(float longitude, float latitude)
+    {
+        return new Location()
+        {
+            Coordinates = new float[] { longitude, latitude }
+        };
+    }
 }
