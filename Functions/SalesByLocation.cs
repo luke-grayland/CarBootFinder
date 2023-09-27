@@ -27,9 +27,9 @@ public class SalesByIdGetPutDelete
         float longitude, 
         float latitude)
     {
-        var location = _saleAssembler.CreateLocation(longitude, latitude);
+        var location = _saleAssembler.AssembleLocation(longitude, latitude);
         
-        await _saleRepository.GetSalesByNearest(location);
-        return new OkResult();
+        var sales = await _saleRepository.GetSalesByNearest(location);
+        return new OkObjectResult(sales);
     }
 }

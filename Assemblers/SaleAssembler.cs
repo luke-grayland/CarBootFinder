@@ -12,14 +12,9 @@ public class SaleAssembler : ISaleAssembler
             Id = ObjectId.GenerateNewId(),
             Name = saleInputModel.Name,
             Refreshments = saleInputModel.Refreshments,
-            Location = new Location()
-            {
-                Coordinates = new float[]
-                {
-                    saleInputModel.Location.Coordinates[0],
-                    saleInputModel.Location.Coordinates[1]
-                }
-            }
+            LocationModel = CreateLocation(
+                saleInputModel.LocationModel.Coordinates[0],
+                saleInputModel.LocationModel.Coordinates[1])
         };
     }
 
@@ -34,11 +29,16 @@ public class SaleAssembler : ISaleAssembler
         return saleModel;
     }
 
-    public Location CreateLocation(float longitude, float latitude)
+    public LocationModel AssembleLocation(double longitude, double latitude)
     {
-        return new Location()
+        return CreateLocation(longitude, latitude);
+    }
+
+    private static LocationModel CreateLocation(double longitude, double latitude)
+    {
+        return new LocationModel()
         {
-            Coordinates = new float[] { longitude, latitude }
+            Coordinates = new double[] { longitude, latitude }
         };
     }
 }

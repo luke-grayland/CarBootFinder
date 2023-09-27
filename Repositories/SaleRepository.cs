@@ -18,9 +18,9 @@ public class SaleRepository : ISaleRepository
         _collection = databaseService.GetDb().GetCollection<SaleModel>(Constants.Collections.Sales);
     }
     
-    public async Task<List<SaleModel>> GetSalesByNearest(Location location)
+    public async Task<List<SaleModel>> GetSalesByNearest(LocationModel locationModel)
     {
-        return await _collection.Find(GetByNearestFilter(location)).ToListAsync();
+        return await _collection.Find(GetByNearestFilter(locationModel)).ToListAsync();
     }
     
     public async Task<SaleModel> GetByIdAsync(string id)
@@ -59,13 +59,13 @@ public class SaleRepository : ISaleRepository
         return Builders<SaleModel>.Filter.Eq("_id", ObjectId.Parse(id));
     }
     
-    private static FilterDefinition<SaleModel> GetByNearestFilter(Location location)
+    private static FilterDefinition<SaleModel> GetByNearestFilter(LocationModel locationModel)
     {
-        return Builders<SaleModel>.Filter.NearSphere(x => x.Location,
+        return Builders<SaleModel>.Filter.NearSphere(x => x.LocationModel,
             new GeoJsonPoint<GeoJson2DGeographicCoordinates>(
                 new GeoJson2DGeographicCoordinates(
-                    location.Coordinates[0],
-                    location.Coordinates[1])
+                    locationModel.Coordinates[0],
+                    locationModel.Coordinates[1])
             ));
     }
 }

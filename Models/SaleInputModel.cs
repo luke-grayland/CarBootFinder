@@ -1,7 +1,7 @@
 
 namespace CarBootFinderAPI.Models;
 
-public class SaleInputModel : SaleBase
+public class SaleInputModel : SaleBaseModel
 {
     
 }

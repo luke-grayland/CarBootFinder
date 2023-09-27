@@ -7,5 +7,5 @@ public interface ISaleAssembler
     SaleModel CreateSale(SaleInputModel saleInputModel);
 
     SaleModel CreateSaleUpdate(SaleInputModel saleInputModel, SaleModel saleModel);
-    public Location CreateLocation(float longitude, float latitude);
+    public LocationModel AssembleLocation(double longitude, double latitude);
 }
