@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using CarBootFinderAPI.Models;
-using Microsoft.AspNetCore.Mvc.Internal;
 using MongoDB.Bson;
 
 namespace CarBootFinderAPI.Assemblers;
@@ -16,11 +15,29 @@ public class SaleAssembler : ISaleAssembler
         return new SaleModel()
         {
             Id = ObjectId.GenerateNewId(),
+            AdminApproved = saleInputModel.AdminApproved,
             Name = saleInputModel.Name,
+            LocationModel = saleInputModel.LocationModel,
+            Region = saleInputModel.Region,
+            DaysOpen = saleInputModel.DaysOpen,
+            Frequency = saleInputModel.Frequency,
+            OpenBankHolidays = saleInputModel.OpenBankHolidays,
+            FromTo = saleInputModel.FromTo,
+            Environment = saleInputModel.Environment,
+            Terrain = saleInputModel.Terrain,
+            BuyerEntryTime = saleInputModel.BuyerEntryTime,
+            BuyerEntryFee = saleInputModel.BuyerEntryFee,
+            SellerEntryTime = saleInputModel.SellerEntryTime,
+            SellerEntryFee = saleInputModel.BuyerEntryFee,
+            Toilets = saleInputModel.Toilets,
+            AccessibleToilets = saleInputModel.AccessibleToilets,
             Refreshments = saleInputModel.Refreshments,
-            LocationModel = CreateLocation(
-                saleInputModel.LocationModel.Coordinates[0],
-                saleInputModel.LocationModel.Coordinates[1])
+            Parking = saleInputModel.Parking,
+            AccessibleParking = saleInputModel.AccessibleParking,
+            ParkingInfo = saleInputModel.ParkingInfo,
+            PetFriendly = saleInputModel.PetFriendly,
+            OtherInfo = saleInputModel.OtherInfo,
+            OrganiserDetails = saleInputModel.OrganiserDetails
         };
     }
 
@@ -47,23 +64,23 @@ public class SaleAssembler : ISaleAssembler
             AdminApproved = false,
             Name = CleanText(formInput.Name),
             LocationModel = CreateLocation(0.0001d, 0.0001d),
-            Region = Enum.TryParse(formInput.Region, out Constants.Region regionValue) ? regionValue : null,
+            Region = ParseRegion(CleanText(formInput.Region)),
             DaysOpen = ParseDays(formInput.DaysOpen),
             Frequency = CleanText(formInput.Frequency),
             OpenBankHolidays = ParseBoolNull(CleanText(formInput.OpenBankHolidays)),
             FromTo = CleanText(formInput.FromTo),
-            Environment = Enum.TryParse(formInput.Region, out Constants.Environment environmentValue) ? environmentValue : null,
+            Environment = ParseEnvironment(CleanText(formInput.Environment)),
             Terrain = CleanText(formInput.Terrain),
             BuyerEntryTime = CleanText(formInput.BuyerEntryTime),
-            BuyerEntryFee = double.Parse(formInput.BuyerEntryFee),
+            BuyerEntryFee = ParseFee(formInput.BuyerEntryFee),
             SellerEntryTime = CleanText(formInput.SellerEntryTime),
-            SellerEntryFee = double.Parse(formInput.SellerEntryFee),
+            SellerEntryFee = ParseFee(formInput.SellerEntryFee),
             Toilets = ParseBoolNull(formInput.Toilets),
             AccessibleToilets = ParseBoolNull(formInput.AccessibleToilets),
             Refreshments = ParseBoolNull(formInput.Refreshments),
             Parking = ParseBoolNull(formInput.Parking),
             AccessibleParking = ParseBoolNull(formInput.AccessibleParking),
-            ParkingInfo = CleanText(formInput.ParkingInfo),
+            ParkingInfo = CleanText(formInput.ParkingAdditionalInfo),
             PetFriendly = ParseBoolNull(formInput.PetFriendly),
             OtherInfo = CleanText(formInput.OtherInfo),
             OrganiserDetails = SanitiseValidateOrganiserDetails(
@@ -95,7 +112,7 @@ public class SaleAssembler : ISaleAssembler
         return new OrganiserDetails()
         {
             Name = CleanText(name),
-            PhoneNumber = int.TryParse(CleanText(phoneNumber), out var result) ? result : null,
+            PhoneNumber = CleanText(phoneNumber),
             PublicEmailAddress = IsValidEmail(publicEmail) ? publicEmail : null,
             PrivateEmailAddress = IsValidEmail(privateEmail) ? privateEmail : null,
             Website = Uri.EscapeDataString(website),
@@ -105,7 +122,10 @@ public class SaleAssembler : ISaleAssembler
 
     private static string CleanText(string text)
     {
-        return Regex.IsMatch(text, @"^[a-zA-Z0-9\s]+$") ? Regex.Escape(text) : "";
+        if (string.IsNullOrEmpty(text))
+            return null;
+        
+        return Regex.IsMatch(text, @"^[a-zA-Z0-9\s]+$") ? text : "";
     }
 
     private static bool? ParseBoolNull(string input)
@@ -113,18 +133,17 @@ public class SaleAssembler : ISaleAssembler
         if (string.IsNullOrEmpty(input))
             return null;
 
-        return bool.TryParse(input, out var result) ? result : null;
+        return input.ToLower() switch
+        {
+            "yes" => true,
+            "no" => false,
+            _ => null
+        };
     }
 
-    private static List<Constants.Days> ParseDays(IEnumerable<string> days)
+    private static List<string> ParseDays(IEnumerable<string> days)
     {
-        var result = new List<Constants.Days>();
-
-        foreach (var day in days)
-            if (Enum.TryParse(CleanText(day), out Constants.Days matchedDay))
-                result.Add(matchedDay);
-
-        return result;
+        return days.Where(day => Constants.Days.AllDays.Contains(day)).ToList();
     }
     
     private static bool IsValidEmail(string email)
@@ -139,6 +158,22 @@ public class SaleAssembler : ISaleAssembler
             return false;
         }
     }
-    
 
+    private static string ParseRegion(string region)
+    {
+        return Constants.Region.AllRegions.Contains(region) ? region : null;
+    }
+
+    private static string ParseEnvironment(string environment)
+    {
+        return Constants.Environment.AllEnvironments.Contains(environment) ? environment : null;
+    }
+
+    private static double ParseFee(string fee)
+    {
+        if (fee.StartsWith("£"))
+            fee = fee.TrimStart('£');
+
+        return double.TryParse(fee, out var result) ? result : 0d;
+    }
 }

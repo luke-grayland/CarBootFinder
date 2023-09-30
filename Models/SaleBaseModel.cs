@@ -7,13 +7,12 @@ public abstract class SaleBaseModel
     public bool AdminApproved { get; set; }
     public string Name { get; set; }
     public LocationModel LocationModel { get; set; }
-    
-    public Constants.Region? Region { get; set; }
-    public List<Constants.Days> DaysOpen { get; set; }
+    public string Region { get; set; }
+    public List<string> DaysOpen { get; set; }
     public string Frequency { get; set; }
     public bool? OpenBankHolidays { get; set; }
     public string FromTo { get; set; }
-    public Constants.Environment? Environment { get; set; }
+    public string Environment { get; set; }
     public string Terrain { get; set; }
     public string BuyerEntryTime { get; set; }
     public double BuyerEntryFee { get; set; }

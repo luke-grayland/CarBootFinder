@@ -24,7 +24,7 @@ public class RegisterSaleFormInputModel
     public string Refreshments { get; set; }
     public string Parking { get; set; }
     public string AccessibleParking { get; set; }
-    public string ParkingInfo { get; set; }
+    public string ParkingAdditionalInfo { get; set; }
     public string PetFriendly { get; set; }
     public string OrganiserName { get; set; }
     public string OrganiserPhoneNumber { get; set; }
