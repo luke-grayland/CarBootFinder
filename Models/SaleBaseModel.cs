@@ -4,16 +4,16 @@ namespace CarBootFinderAPI.Models;
 
 public abstract class SaleBaseModel
 {
+    public bool AdminApproved { get; set; }
     public string Name { get; set; }
     public LocationModel LocationModel { get; set; }
     
-    public Constants.Region Region { get; set; }
-    public string Description { get; set; }
+    public Constants.Region? Region { get; set; }
     public List<Constants.Days> DaysOpen { get; set; }
     public string Frequency { get; set; }
     public bool? OpenBankHolidays { get; set; }
     public string FromTo { get; set; }
-    public Constants.Covering Covering { get; set; }
+    public Constants.Environment? Environment { get; set; }
     public string Terrain { get; set; }
     public string BuyerEntryTime { get; set; }
     public double BuyerEntryFee { get; set; }
@@ -26,6 +26,8 @@ public abstract class SaleBaseModel
     public bool? AccessibleParking { get; set; }
     public string ParkingInfo { get; set; }
     public bool? PetFriendly { get; set; }
+    public string OtherInfo { get; set; }
     public OrganiserDetails OrganiserDetails { get; set; }
+    
     
 }

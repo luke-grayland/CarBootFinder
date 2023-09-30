@@ -31,7 +31,8 @@ public class Sales
         if (req.Method == HttpMethods.Post)
         {
             var reqBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var saleInput = JsonConvert.DeserializeObject<SaleInputModel>(reqBody);
+            var saleInput = _saleAssembler.SanitiseValidateFormInput(
+                JsonConvert.DeserializeObject<RegisterSaleFormInputModel>(reqBody));
             var createdSale = _saleAssembler.CreateSale(saleInput);
             
             await _saleRepository.CreateAsync(createdSale);

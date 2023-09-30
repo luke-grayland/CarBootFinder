@@ -42,7 +42,7 @@ public static class Constants
         Sunday
     }
 
-    public enum Covering
+    public enum Environment
     {
         Outdoor,
         Indoor,

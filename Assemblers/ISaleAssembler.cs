@@ -8,4 +8,5 @@ public interface ISaleAssembler
 
     SaleModel CreateSaleUpdate(SaleInputModel saleInputModel, SaleModel saleModel);
     public LocationModel AssembleLocation(double longitude, double latitude);
+    public SaleInputModel SanitiseValidateFormInput(RegisterSaleFormInputModel formInput);
 }
