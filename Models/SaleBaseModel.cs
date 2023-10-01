@@ -14,10 +14,7 @@ public abstract class SaleBaseModel
     public string FromTo { get; set; }
     public string Environment { get; set; }
     public string Terrain { get; set; }
-    public string BuyerEntryTime { get; set; }
-    public double BuyerEntryFee { get; set; }
-    public string SellerEntryTime { get; set; }
-    public double SellerEntryFee { get; set; }
+    public EntryModel Entry { get; set; }
     public bool? Toilets { get; set; }
     public bool? AccessibleToilets  { get; set; }
     public bool? Refreshments { get; set; }
@@ -26,7 +23,7 @@ public abstract class SaleBaseModel
     public string ParkingInfo { get; set; }
     public bool? PetFriendly { get; set; }
     public string OtherInfo { get; set; }
-    public OrganiserDetails OrganiserDetails { get; set; }
+    public OrganiserDetailsModel OrganiserDetailsModel { get; set; }
     
     
 }

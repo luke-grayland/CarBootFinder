@@ -1,6 +1,6 @@
 namespace CarBootFinderAPI.Models;
 
-public class OrganiserDetails
+public class OrganiserDetailsModel
 {
     public string Name { get; set; }
     public string PhoneNumber { get; set; }

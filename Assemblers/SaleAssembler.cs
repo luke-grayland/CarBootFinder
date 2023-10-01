@@ -25,10 +25,7 @@ public class SaleAssembler : ISaleAssembler
             FromTo = saleInputModel.FromTo,
             Environment = saleInputModel.Environment,
             Terrain = saleInputModel.Terrain,
-            BuyerEntryTime = saleInputModel.BuyerEntryTime,
-            BuyerEntryFee = saleInputModel.BuyerEntryFee,
-            SellerEntryTime = saleInputModel.SellerEntryTime,
-            SellerEntryFee = saleInputModel.BuyerEntryFee,
+            Entry = saleInputModel.Entry,
             Toilets = saleInputModel.Toilets,
             AccessibleToilets = saleInputModel.AccessibleToilets,
             Refreshments = saleInputModel.Refreshments,
@@ -37,7 +34,7 @@ public class SaleAssembler : ISaleAssembler
             ParkingInfo = saleInputModel.ParkingInfo,
             PetFriendly = saleInputModel.PetFriendly,
             OtherInfo = saleInputModel.OtherInfo,
-            OrganiserDetails = saleInputModel.OrganiserDetails
+            OrganiserDetailsModel = saleInputModel.OrganiserDetailsModel
         };
     }
 
@@ -71,10 +68,11 @@ public class SaleAssembler : ISaleAssembler
             FromTo = CleanText(formInput.FromTo),
             Environment = ParseEnvironment(CleanText(formInput.Environment)),
             Terrain = CleanText(formInput.Terrain),
-            BuyerEntryTime = CleanText(formInput.BuyerEntryTime),
-            BuyerEntryFee = ParseFee(formInput.BuyerEntryFee),
-            SellerEntryTime = CleanText(formInput.SellerEntryTime),
-            SellerEntryFee = ParseFee(formInput.SellerEntryFee),
+            Entry = ParseEntry(
+                formInput.BuyerEntryTime, 
+                formInput.BuyerEntryFee, 
+                formInput.SellerEntryTime, 
+                formInput.SellerEntryFee),
             Toilets = ParseBoolNull(formInput.Toilets),
             AccessibleToilets = ParseBoolNull(formInput.AccessibleToilets),
             Refreshments = ParseBoolNull(formInput.Refreshments),
@@ -83,7 +81,7 @@ public class SaleAssembler : ISaleAssembler
             ParkingInfo = CleanText(formInput.ParkingAdditionalInfo),
             PetFriendly = ParseBoolNull(formInput.PetFriendly),
             OtherInfo = CleanText(formInput.OtherInfo),
-            OrganiserDetails = SanitiseValidateOrganiserDetails(
+            OrganiserDetailsModel = SanitiseValidateOrganiserDetails(
                 formInput.OrganiserName,
                 formInput.OrganiserPhoneNumber,
                 formInput.OrganiserPublicEmailAddress,
@@ -101,7 +99,7 @@ public class SaleAssembler : ISaleAssembler
         };
     }
 
-    private static OrganiserDetails SanitiseValidateOrganiserDetails(
+    private static OrganiserDetailsModel SanitiseValidateOrganiserDetails(
         string name, 
         string phoneNumber, 
         string publicEmail,
@@ -109,7 +107,7 @@ public class SaleAssembler : ISaleAssembler
         string website,
         string facebookGroup)
     {
-        return new OrganiserDetails()
+        return new OrganiserDetailsModel()
         {
             Name = CleanText(name),
             PhoneNumber = CleanText(phoneNumber),
@@ -125,7 +123,7 @@ public class SaleAssembler : ISaleAssembler
         if (string.IsNullOrEmpty(text))
             return null;
         
-        return Regex.IsMatch(text, @"^[a-zA-Z0-9\s]+$") ? text : "";
+        return Regex.IsMatch(text, @"^[a-zA-Z0-9:\s]+$") ? text : "";
     }
 
     private static bool? ParseBoolNull(string input)
@@ -175,5 +173,20 @@ public class SaleAssembler : ISaleAssembler
             fee = fee.TrimStart('£');
 
         return double.TryParse(fee, out var result) ? result : 0d;
+    }
+
+    private static EntryModel ParseEntry(
+        string buyerEntryTime,
+        string buyerEntryFee,
+        string sellerEntryTime,
+        string sellerEntryFee)
+    {
+        return new EntryModel()
+        {
+            BuyerEntryTime = CleanText(buyerEntryTime),
+            BuyerEntryFee = ParseFee(buyerEntryFee),
+            SellerEntryTime = CleanText(sellerEntryTime),
+            SellerEntryFee = ParseFee(sellerEntryFee),
+        };
     }
 }
