@@ -17,7 +17,8 @@ public class SaleAssembler : ISaleAssembler
             Id = ObjectId.GenerateNewId(),
             AdminApproved = saleInputModel.AdminApproved,
             Name = saleInputModel.Name,
-            LocationModel = saleInputModel.LocationModel,
+            Location = saleInputModel.Location,
+            Address = saleInputModel.Address,
             Region = saleInputModel.Region,
             DaysOpen = saleInputModel.DaysOpen,
             Frequency = saleInputModel.Frequency,
@@ -40,6 +41,8 @@ public class SaleAssembler : ISaleAssembler
 
     public SaleModel CreateSaleUpdate(SaleInputModel saleInputModel, SaleModel saleModel)
     {
+        //method WIP
+        
         if (!string.IsNullOrEmpty(saleInputModel.Name))
             saleModel.Name = saleInputModel.Name;
 
@@ -60,7 +63,10 @@ public class SaleAssembler : ISaleAssembler
         {
             AdminApproved = false,
             Name = CleanText(formInput.Name),
-            LocationModel = CreateLocation(0.0001d, 0.0001d),
+            Location = CreateLocation(
+                double.Parse(formInput.Longitude), 
+                double.Parse(formInput.Latitude)),
+            Address = SanitiseAddress(formInput.Address),
             Region = ParseRegion(CleanText(formInput.Region)),
             DaysOpen = ParseDays(formInput.DaysOpen),
             Frequency = CleanText(formInput.Frequency),
@@ -123,7 +129,7 @@ public class SaleAssembler : ISaleAssembler
         if (string.IsNullOrEmpty(text))
             return null;
         
-        return Regex.IsMatch(text, @"^[a-zA-Z0-9:\s]+$") ? text : "";
+        return Regex.IsMatch(text, @"^[a-zA-Z0-9:\s,]+$") ? text : "";
     }
 
     private static bool? ParseBoolNull(string input)
@@ -188,5 +194,11 @@ public class SaleAssembler : ISaleAssembler
             SellerEntryTime = CleanText(sellerEntryTime),
             SellerEntryFee = ParseFee(sellerEntryFee),
         };
+    }
+    
+    private static string SanitiseAddress(string address)
+    {
+        const string pattern = @"[^a-zA-Z0-9\s,.\-]";
+        return Regex.Replace(address, pattern, "");
     }
 }

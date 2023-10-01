@@ -61,7 +61,7 @@ public class SaleRepository : ISaleRepository
     
     private static FilterDefinition<SaleModel> GetByNearestFilter(LocationModel locationModel)
     {
-        return Builders<SaleModel>.Filter.NearSphere(x => x.LocationModel,
+        return Builders<SaleModel>.Filter.NearSphere(x => x.Location,
             new GeoJsonPoint<GeoJson2DGeographicCoordinates>(
                 new GeoJson2DGeographicCoordinates(
                     locationModel.Coordinates[0],

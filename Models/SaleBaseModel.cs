@@ -6,7 +6,8 @@ public abstract class SaleBaseModel
 {
     public bool AdminApproved { get; set; }
     public string Name { get; set; }
-    public LocationModel LocationModel { get; set; }
+    public LocationModel Location { get; set; }
+    public string Address { get; set; }
     public string Region { get; set; }
     public List<string> DaysOpen { get; set; }
     public string Frequency { get; set; }
