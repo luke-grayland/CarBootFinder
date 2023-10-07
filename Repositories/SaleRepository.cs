@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CarBootFinderAPI.Models;
 using CarBootFinderAPI.Utilities;
@@ -14,7 +16,6 @@ public class SaleRepository : ISaleRepository
     private const double MaxDistanceInRadians = 
         SystemSettings.SearchMaxDistanceKilometers / Constants.Search.EarthRadiusKilometers;
     
-    
     public SaleRepository(IDatabaseService databaseService)
     {
         _collection = databaseService.GetDb().GetCollection<SaleModel>(Constants.Collections.Sales);
@@ -24,10 +25,22 @@ public class SaleRepository : ISaleRepository
     {
         var pipeline = new BsonDocument[]
         {
-            BsonDocument.Parse($"{{ $geoNear: {{ near: {{ type: 'Point', coordinates: [{locationModel.Coordinates[0]}, {locationModel.Coordinates[1]}] }}, distanceField: 'distance', spherical: true }} }}")
+            BsonDocument.Parse($"{{ $geoNear: {{ near: {{ type: 'Point', coordinates: [{locationModel.Coordinates[0]}, {locationModel.Coordinates[1]}] }}, distanceField: 'location.distanceInMeters', spherical: true }} }}")
         };
 
         return await _collection.Aggregate<SaleModel>(pipeline).ToListAsync();
+    }
+
+    public async Task<List<SaleModel>> GetSalesByRegion(string region)
+    {
+        var matchedRegion = Constants.Region.AllRegions
+            .Select(x => new KeyValuePair<string,string>(x.Key.ToLower(), x.Value))
+            .FirstOrDefault(x => x.Key == region);
+        
+        if (matchedRegion.Key == null || matchedRegion.Value == null)
+            throw new ArgumentException("Invalid region");
+
+        return await _collection.Find(GetByRegionFilter(matchedRegion.Value)).ToListAsync();
     }
     
     public async Task<SaleModel> GetByIdAsync(string id)
@@ -64,6 +77,11 @@ public class SaleRepository : ISaleRepository
     private static FilterDefinition<SaleModel> GetByIdFilter(string id)
     {
         return Builders<SaleModel>.Filter.Eq("_id", ObjectId.Parse(id));
+    }
+
+    private static FilterDefinition<SaleModel> GetByRegionFilter(string region)
+    {
+        return Builders<SaleModel>.Filter.Eq("region", region);
     }
     
 }

@@ -71,5 +71,4 @@ public abstract class SaleBaseModel
     [BsonElement("organiserDetails")]
     public OrganiserDetailsModel OrganiserDetails { get; set; }
     
-    
 }

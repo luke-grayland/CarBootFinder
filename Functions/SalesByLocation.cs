@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Http;
 
 namespace CarBootFinderAPI.Functions;
 
-public class SalesByIdGetPutDelete
+public class SalesByLocation
 {
     private readonly ISaleRepository _saleRepository;
     private readonly ISaleAssembler _saleAssembler;
     
-    public SalesByIdGetPutDelete(
+    public SalesByLocation(
         ISaleAssembler saleAssembler,
         ISaleRepository saleRepository)
     {

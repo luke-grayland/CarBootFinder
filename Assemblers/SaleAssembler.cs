@@ -56,9 +56,9 @@ public class SaleAssembler : ISaleAssembler
     public List<SaleModel> CalculateDistance(IList<SaleModel> sales)
     {
         foreach (var sale in sales)
-            if (sale.Distance != 0)
-                sale.DistanceInMiles = 
-                    sale.Distance * Constants.Search.MeterToMileMultiplier;
+            if (sale.Location.DistanceInMeters != 0)
+                sale.Location.DistanceInMiles = 
+                    sale.Location.DistanceInMeters * Constants.Search.MeterToMileMultiplier;
             
         return sales.ToList();
     }
@@ -177,7 +177,7 @@ public class SaleAssembler : ISaleAssembler
 
     private static string ParseRegion(string region)
     {
-        return Constants.Region.AllRegions.Contains(region) ? region : null;
+        return Constants.Region.AllRegions.Any(x => x.Value == region) ? region : null;
     }
 
     private static string ParseEnvironment(string environment)

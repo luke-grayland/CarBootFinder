@@ -11,5 +11,11 @@ namespace CarBootFinderAPI.Models
 
         [BsonElement("coordinates")]
         public double[] Coordinates { get; set; }
+        
+        [BsonElement("distanceInMeters")]
+        public double DistanceInMeters { get; set; }
+    
+        [BsonElement("distanceInMiles")]
+        public double DistanceInMiles { get; set; }
     }
 }

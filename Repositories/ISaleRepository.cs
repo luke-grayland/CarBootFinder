@@ -12,4 +12,5 @@ public interface ISaleRepository
     Task UpdateAsync(string id, SaleModel sale);
     Task DeleteAsync(string id);
     Task<List<SaleModel>> GetSalesByNearest(LocationModel locationModel);
+    Task<List<SaleModel>> GetSalesByRegion(string region);
 }

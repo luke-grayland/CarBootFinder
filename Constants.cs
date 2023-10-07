@@ -22,17 +22,17 @@ public static class Constants
         public const string EastMidlands = "East Midlands";
         public const string NorthEast = "North East";
         
-        public static readonly List<string> AllRegions = new List<string>
+        public static readonly List<KeyValuePair<string, string>> AllRegions = new List<KeyValuePair<string, string>>
         {
-            SouthEast, 
-            London, 
-            NorthWest, 
-            EastOfEngland,
-            WestMidlands, 
-            SouthWest, 
-            YorkshireAndTheHumber,
-            EastMidlands, 
-            NorthEast
+            new ("SouthEast", SouthEast),
+            new ("London", London),
+            new ("NorthWest", NorthWest),
+            new ("EastOfEngland", EastOfEngland),
+            new ("WestMidlands", WestMidlands),
+            new ("SouthWest", SouthWest),
+            new ("YorkshireAndTheHumber", YorkshireAndTheHumber),
+            new ("EastMidlands", EastMidlands),
+            new ("NorthEast", NorthEast),
         };
     }
 
