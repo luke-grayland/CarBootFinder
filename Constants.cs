@@ -71,5 +71,11 @@ public static class Constants
             Mixed
         };
     }
+
+    public static class Search
+    {
+        public const double EarthRadiusKilometers = 6371;
+        public const double MeterToMileMultiplier = 0.00062137;
+    }
     
 }

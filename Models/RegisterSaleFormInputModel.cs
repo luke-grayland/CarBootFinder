@@ -12,6 +12,7 @@ public class RegisterSaleFormInputModel
     public List<string> DaysOpen { get; set; }
     public string Frequency { get; set; }
     public string OpenBankHolidays { get; set; }
+    public string BankHolidayAdditionalInfo { get; set; }
     public string FromTo { get; set; }
     public string Environment { get; set; }
     public string Terrain { get; set; }
@@ -19,6 +20,7 @@ public class RegisterSaleFormInputModel
     public string BuyerEntryFee { get; set; }
     public string SellerEntryTime { get; set; }
     public string SellerEntryFee { get; set; }
+    public string ClosingTime { get; set; }
     public string Toilets { get; set; }
     public string AccessibleToilets  { get; set; }
     public string Refreshments { get; set; }

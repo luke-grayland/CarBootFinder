@@ -23,6 +23,7 @@ public class SaleAssembler : ISaleAssembler
             DaysOpen = saleInputModel.DaysOpen,
             Frequency = saleInputModel.Frequency,
             OpenBankHolidays = saleInputModel.OpenBankHolidays,
+            BankHolidayAdditionalInfo = saleInputModel.BankHolidayAdditionalInfo,
             FromTo = saleInputModel.FromTo,
             Environment = saleInputModel.Environment,
             Terrain = saleInputModel.Terrain,
@@ -35,7 +36,7 @@ public class SaleAssembler : ISaleAssembler
             ParkingInfo = saleInputModel.ParkingInfo,
             PetFriendly = saleInputModel.PetFriendly,
             OtherInfo = saleInputModel.OtherInfo,
-            OrganiserDetailsModel = saleInputModel.OrganiserDetailsModel
+            OrganiserDetails = saleInputModel.OrganiserDetails
         };
     }
 
@@ -52,6 +53,16 @@ public class SaleAssembler : ISaleAssembler
         return saleModel;
     }
 
+    public List<SaleModel> CalculateDistance(IList<SaleModel> sales)
+    {
+        foreach (var sale in sales)
+            if (sale.Distance != 0)
+                sale.DistanceInMiles = 
+                    sale.Distance * Constants.Search.MeterToMileMultiplier;
+            
+        return sales.ToList();
+    }
+    
     public LocationModel AssembleLocation(double longitude, double latitude)
     {
         return CreateLocation(longitude, latitude);
@@ -71,6 +82,7 @@ public class SaleAssembler : ISaleAssembler
             DaysOpen = ParseDays(formInput.DaysOpen),
             Frequency = CleanText(formInput.Frequency),
             OpenBankHolidays = ParseBoolNull(CleanText(formInput.OpenBankHolidays)),
+            BankHolidayAdditionalInfo = CleanText(formInput.BankHolidayAdditionalInfo),
             FromTo = CleanText(formInput.FromTo),
             Environment = ParseEnvironment(CleanText(formInput.Environment)),
             Terrain = CleanText(formInput.Terrain),
@@ -78,7 +90,8 @@ public class SaleAssembler : ISaleAssembler
                 formInput.BuyerEntryTime, 
                 formInput.BuyerEntryFee, 
                 formInput.SellerEntryTime, 
-                formInput.SellerEntryFee),
+                formInput.SellerEntryFee,
+                formInput.ClosingTime),
             Toilets = ParseBoolNull(formInput.Toilets),
             AccessibleToilets = ParseBoolNull(formInput.AccessibleToilets),
             Refreshments = ParseBoolNull(formInput.Refreshments),
@@ -87,7 +100,7 @@ public class SaleAssembler : ISaleAssembler
             ParkingInfo = CleanText(formInput.ParkingAdditionalInfo),
             PetFriendly = ParseBoolNull(formInput.PetFriendly),
             OtherInfo = CleanText(formInput.OtherInfo),
-            OrganiserDetailsModel = SanitiseValidateOrganiserDetails(
+            OrganiserDetails = SanitiseValidateOrganiserDetails(
                 formInput.OrganiserName,
                 formInput.OrganiserPhoneNumber,
                 formInput.OrganiserPublicEmailAddress,
@@ -126,10 +139,9 @@ public class SaleAssembler : ISaleAssembler
 
     private static string CleanText(string text)
     {
-        if (string.IsNullOrEmpty(text))
-            return null;
-        
-        return Regex.IsMatch(text, @"^[a-zA-Z0-9:\s,]+$") ? text : "";
+        return string.IsNullOrEmpty(text) 
+            ? null 
+            : Regex.Replace(text, @"[^a-zA-Z0-9:\s,\-]", "");
     }
 
     private static bool? ParseBoolNull(string input)
@@ -185,7 +197,8 @@ public class SaleAssembler : ISaleAssembler
         string buyerEntryTime,
         string buyerEntryFee,
         string sellerEntryTime,
-        string sellerEntryFee)
+        string sellerEntryFee,
+        string closingTime)
     {
         return new EntryModel()
         {
@@ -193,6 +206,7 @@ public class SaleAssembler : ISaleAssembler
             BuyerEntryFee = ParseFee(buyerEntryFee),
             SellerEntryTime = CleanText(sellerEntryTime),
             SellerEntryFee = ParseFee(sellerEntryFee),
+            ClosingTime = CleanText(closingTime)
         };
     }
     

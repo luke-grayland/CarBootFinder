@@ -7,7 +7,7 @@ namespace CarBootFinderAPI.Models
     {
         [BsonElement("type")]
         [BsonRepresentation(BsonType.String)]
-        public string Type { get; } = "Point";
+        public string Type { get; set; } = "Point";
 
         [BsonElement("coordinates")]
         public double[] Coordinates { get; set; }

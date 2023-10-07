@@ -5,13 +5,15 @@ using CarBootFinderAPI.Models;
 using CarBootFinderAPI.Utilities;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoDB.Driver.GeoJsonObjectModel;
 
 namespace CarBootFinderAPI.Repositories;
 
 public class SaleRepository : ISaleRepository
 {
     private readonly IMongoCollection<SaleModel> _collection;
+    private const double MaxDistanceInRadians = 
+        SystemSettings.SearchMaxDistanceKilometers / Constants.Search.EarthRadiusKilometers;
+    
     
     public SaleRepository(IDatabaseService databaseService)
     {
@@ -20,7 +22,12 @@ public class SaleRepository : ISaleRepository
     
     public async Task<List<SaleModel>> GetSalesByNearest(LocationModel locationModel)
     {
-        return await _collection.Find(GetByNearestFilter(locationModel)).ToListAsync();
+        var pipeline = new BsonDocument[]
+        {
+            BsonDocument.Parse($"{{ $geoNear: {{ near: {{ type: 'Point', coordinates: [{locationModel.Coordinates[0]}, {locationModel.Coordinates[1]}] }}, distanceField: 'distance', spherical: true }} }}")
+        };
+
+        return await _collection.Aggregate<SaleModel>(pipeline).ToListAsync();
     }
     
     public async Task<SaleModel> GetByIdAsync(string id)
@@ -59,13 +66,4 @@ public class SaleRepository : ISaleRepository
         return Builders<SaleModel>.Filter.Eq("_id", ObjectId.Parse(id));
     }
     
-    private static FilterDefinition<SaleModel> GetByNearestFilter(LocationModel locationModel)
-    {
-        return Builders<SaleModel>.Filter.NearSphere(x => x.Location,
-            new GeoJsonPoint<GeoJson2DGeographicCoordinates>(
-                new GeoJson2DGeographicCoordinates(
-                    locationModel.Coordinates[0],
-                    locationModel.Coordinates[1])
-            ));
-    }
 }

@@ -28,8 +28,8 @@ public class SalesByIdGetPutDelete
         float latitude)
     {
         var location = _saleAssembler.AssembleLocation(longitude, latitude);
-        
-        var sales = await _saleRepository.GetSalesByNearest(location);
+        var results = await _saleRepository.GetSalesByNearest(location);
+        var sales = _saleAssembler.CalculateDistance(results);
         return new OkObjectResult(sales);
     }
 }
