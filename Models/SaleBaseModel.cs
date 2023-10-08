@@ -71,4 +71,6 @@ public abstract class SaleBaseModel
     [BsonElement("organiserDetails")]
     public OrganiserDetailsModel OrganiserDetails { get; set; }
     
+    [BsonElement("coverImage")]
+    public CoverImage CoverImage { get; set; }   
 }

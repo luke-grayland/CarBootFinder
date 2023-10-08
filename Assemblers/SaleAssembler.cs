@@ -1,10 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using CarBootFinderAPI.Models;
+using Microsoft.AspNetCore.Http;
 using MongoDB.Bson;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Processing;
 
 namespace CarBootFinderAPI.Assemblers;
 
@@ -36,7 +42,8 @@ public class SaleAssembler : ISaleAssembler
             ParkingInfo = saleInputModel.ParkingInfo,
             PetFriendly = saleInputModel.PetFriendly,
             OtherInfo = saleInputModel.OtherInfo,
-            OrganiserDetails = saleInputModel.OrganiserDetails
+            OrganiserDetails = saleInputModel.OrganiserDetails,
+            CoverImage = saleInputModel.CoverImage
         };
     }
 
@@ -68,7 +75,9 @@ public class SaleAssembler : ISaleAssembler
         return CreateLocation(longitude, latitude);
     }
 
-    public SaleInputModel SanitiseValidateFormInput(RegisterSaleFormInputModel formInput)
+    public async Task<SaleInputModel> SanitiseValidateFormInput(
+        RegisterSaleFormInputModel formInput, 
+        IFormFile coverImage)
     {
         return new SaleInputModel()
         {
@@ -106,7 +115,8 @@ public class SaleAssembler : ISaleAssembler
                 formInput.OrganiserPublicEmailAddress,
                 formInput.OrganiserPrivateEmailAddress,
                 formInput.Website,
-                formInput.FacebookGroup)
+                formInput.FacebookGroup),
+            CoverImage = await SanitiseValidateCoverImage(coverImage) 
         };
     }
     
@@ -214,5 +224,38 @@ public class SaleAssembler : ISaleAssembler
     {
         const string pattern = @"[^a-zA-Z0-9\s,.\-]";
         return Regex.Replace(address, pattern, "");
+    }
+
+    private static async Task<CoverImage> SanitiseValidateCoverImage(IFormFile formFile)
+    {
+        return new CoverImage()
+        {
+            Filename = SanitisedFileName(formFile.FileName) + ".jpg",
+            Data = await NormaliseImage(formFile)
+        };
+    }
+
+    private static string SanitisedFileName(string fileName)
+    {
+        var sanitizedFileName = Path.GetFileNameWithoutExtension(fileName);
+        return string.Join("_", sanitizedFileName.Split(Path.GetInvalidFileNameChars()));
+    }
+
+    private static async Task<byte[]> NormaliseImage(IFormFile formFile)
+    {
+        using var memoryStream = new MemoryStream();
+        await formFile.CopyToAsync(memoryStream);
+        var image = Image.Load(memoryStream.ToArray());
+        
+        image.Mutate(x => x.Resize(new ResizeOptions
+        {
+            Size = new Size(800, 600),
+            Mode = ResizeMode.Max
+        }));
+        
+        memoryStream.Position = 0;
+        await image.SaveAsync(memoryStream, new JpegEncoder());
+        
+        return memoryStream.ToArray();
     }
 }

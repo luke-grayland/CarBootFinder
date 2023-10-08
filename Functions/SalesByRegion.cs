@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Web.Http;
 using CarBootFinderAPI.Assemblers;
 using CarBootFinderAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,12 @@ public class SalesByRegion
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sales/region/{region}")] HttpRequest req, 
         string region)
     {
-        var sales = await _saleRepository.GetSalesByRegion(region);
-        return new OkObjectResult(sales);
+        if (req.Method == HttpMethods.Get)
+        {
+            var sales = await _saleRepository.GetSalesByRegion(region);
+            return new OkObjectResult(sales);    
+        }
+        
+        return new BadRequestErrorMessageResult("HTTP route not supported");
     }
 }

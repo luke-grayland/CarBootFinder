@@ -1,5 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
+using System.Web.Http;
 using CarBootFinderAPI.Assemblers;
 using CarBootFinderAPI.Repositories;
 using CarBootFinderAPI.Models;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
+using MongoDB.Driver;
 using Newtonsoft.Json;
 
 namespace CarBootFinderAPI.Functions;
@@ -46,7 +48,12 @@ public class SalesById
             return new NoContentResult();
         }
 
-        var sale = await _saleRepository.GetByIdAsync(id);
-        return sale == null ? new NotFoundResult() : new OkObjectResult(sale); 
+        if (req.Method == HttpMethods.Get)
+        {
+            var sale = await _saleRepository.GetByIdAsync(id);
+            return sale == null ? new NotFoundResult() : new OkObjectResult(sale);     
+        }
+
+        return new BadRequestErrorMessageResult("HTTP route not supported");
     }
 }

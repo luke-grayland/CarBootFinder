@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Web.Http;
 using CarBootFinderAPI.Assemblers;
 using CarBootFinderAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -27,9 +28,14 @@ public class SalesByLocation
         float longitude, 
         float latitude)
     {
-        var location = _saleAssembler.AssembleLocation(longitude, latitude);
-        var results = await _saleRepository.GetSalesByNearest(location);
-        var sales = _saleAssembler.CalculateDistance(results);
-        return new OkObjectResult(sales);
+        if (req.Method == HttpMethods.Get)
+        {
+            var location = _saleAssembler.AssembleLocation(longitude, latitude);
+            var results = await _saleRepository.GetSalesByNearest(location);
+            var sales = _saleAssembler.CalculateDistance(results);
+            return new OkObjectResult(sales);    
+        }
+        
+        return new BadRequestErrorMessageResult("HTTP route not supported");
     }
 }

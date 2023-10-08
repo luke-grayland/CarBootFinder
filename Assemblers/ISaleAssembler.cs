@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CarBootFinderAPI.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace CarBootFinderAPI.Assemblers;
 
@@ -9,6 +11,6 @@ public interface ISaleAssembler
 
     SaleModel CreateSaleUpdate(SaleInputModel saleInputModel, SaleModel saleModel);
     public LocationModel AssembleLocation(double longitude, double latitude);
-    public SaleInputModel SanitiseValidateFormInput(RegisterSaleFormInputModel formInput);
+    public Task<SaleInputModel> SanitiseValidateFormInput(RegisterSaleFormInputModel formInput, IFormFile coverImage);
     public List<SaleModel> CalculateDistance(IList<SaleModel> sales);
 }

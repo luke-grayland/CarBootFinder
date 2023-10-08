@@ -1,5 +1,7 @@
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Web.Http;
 using CarBootFinderAPI.Assemblers;
 using CarBootFinderAPI.Repositories;
 using CarBootFinderAPI.Models;
@@ -31,15 +33,22 @@ public class Sales
         if (req.Method == HttpMethods.Post)
         {
             var reqBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var saleInput = _saleAssembler.SanitiseValidateFormInput(
-                JsonConvert.DeserializeObject<RegisterSaleFormInputModel>(reqBody));
+            var coverImage = req.Form.Files["CoverImage"];
+
+            var saleInput = await _saleAssembler.SanitiseValidateFormInput(
+                JsonConvert.DeserializeObject<RegisterSaleFormInputModel>(reqBody), coverImage);
             var createdSale = _saleAssembler.CreateSale(saleInput);
             
             await _saleRepository.CreateAsync(createdSale);
             return new CreatedResult("/sales", createdSale);
         }
 
-        var sales = await _saleRepository.GetAllAsync();
-        return new OkObjectResult(sales);
+        if (req.Method == HttpMethods.Get)
+        {
+            var sales = await _saleRepository.GetAllAsync();
+            return new OkObjectResult(sales);    
+        }
+
+        return new BadRequestErrorMessageResult("HTTP route not supported");
     }
 }
