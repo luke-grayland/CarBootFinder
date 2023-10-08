@@ -75,48 +75,48 @@ public class SaleAssembler : ISaleAssembler
         return CreateLocation(longitude, latitude);
     }
 
-    public async Task<SaleInputModel> SanitiseValidateFormInput(
-        RegisterSaleFormInputModel formInput, 
-        IFormFile coverImage)
+    public async Task<SaleInputModel> SanitiseValidateFormInput(IFormCollection form)
     {
+        
+        
         return new SaleInputModel()
         {
             AdminApproved = false,
-            Name = CleanText(formInput.Name),
+            Name = CleanText(form["Name"]),
             Location = CreateLocation(
-                double.Parse(formInput.Longitude), 
-                double.Parse(formInput.Latitude)),
-            Address = SanitiseAddress(formInput.Address),
-            Region = ParseRegion(CleanText(formInput.Region)),
-            DaysOpen = ParseDays(formInput.DaysOpen),
-            Frequency = CleanText(formInput.Frequency),
-            OpenBankHolidays = ParseBoolNull(CleanText(formInput.OpenBankHolidays)),
-            BankHolidayAdditionalInfo = CleanText(formInput.BankHolidayAdditionalInfo),
-            FromTo = CleanText(formInput.FromTo),
-            Environment = ParseEnvironment(CleanText(formInput.Environment)),
-            Terrain = CleanText(formInput.Terrain),
+                double.Parse(form["Longitude"]), 
+                double.Parse(form["Latitude"])),
+            Address = SanitiseAddress(form["Address"]),
+            Region = ParseRegion(CleanText(form["Region"])),
+            DaysOpen = ParseDays(form["DaysOpen"]), //todo this has changed format
+            Frequency = CleanText(form["Frequency"]),
+            OpenBankHolidays = ParseBoolNull(CleanText(form["OpenBankHolidays"])),
+            BankHolidayAdditionalInfo = CleanText(form["BankHolidayAdditionalInfo"]),
+            FromTo = CleanText(form["FromTo"]),
+            Environment = ParseEnvironment(CleanText(form["Environment"])),
+            Terrain = CleanText(form["Terrain"]),
             Entry = ParseEntry(
-                formInput.BuyerEntryTime, 
-                formInput.BuyerEntryFee, 
-                formInput.SellerEntryTime, 
-                formInput.SellerEntryFee,
-                formInput.ClosingTime),
-            Toilets = ParseBoolNull(formInput.Toilets),
-            AccessibleToilets = ParseBoolNull(formInput.AccessibleToilets),
-            Refreshments = ParseBoolNull(formInput.Refreshments),
-            Parking = ParseBoolNull(formInput.Parking),
-            AccessibleParking = ParseBoolNull(formInput.AccessibleParking),
-            ParkingInfo = CleanText(formInput.ParkingAdditionalInfo),
-            PetFriendly = ParseBoolNull(formInput.PetFriendly),
-            OtherInfo = CleanText(formInput.OtherInfo),
+                form["BuyerEntryTime"], 
+                form["BuyerEntryFee"], 
+                form["SellerEntryTime"], 
+                form["SellerEntryFee"],
+                form["ClosingTime"]),
+            Toilets = ParseBoolNull(form["Toilets"]),
+            AccessibleToilets = ParseBoolNull(form["AccessibleToilets"]),
+            Refreshments = ParseBoolNull(form["Refreshments"]),
+            Parking = ParseBoolNull(form["Parking"]),
+            AccessibleParking = ParseBoolNull(form["AccessibleParking"]),
+            ParkingInfo = CleanText(form["ParkingAdditionalInfo"]),
+            PetFriendly = ParseBoolNull(form["PetFriendly"]),
+            OtherInfo = CleanText(form["OtherInfo"]),
             OrganiserDetails = SanitiseValidateOrganiserDetails(
-                formInput.OrganiserName,
-                formInput.OrganiserPhoneNumber,
-                formInput.OrganiserPublicEmailAddress,
-                formInput.OrganiserPrivateEmailAddress,
-                formInput.Website,
-                formInput.FacebookGroup),
-            CoverImage = await SanitiseValidateCoverImage(coverImage) 
+                form["OrganiserName"],
+                form["OrganiserPhoneNumber"],
+                form["OrganisePublicEmailAddress"],
+                form["OrganiserPrivateEmailAddress"],
+                form["Website"],
+                form["FacebookGroup"]),
+            CoverImage = await SanitiseValidateCoverImage(form.Files["CoverImage"]) 
         };
     }
     

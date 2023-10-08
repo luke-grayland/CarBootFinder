@@ -1,15 +1,11 @@
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using CarBootFinderAPI.Assemblers;
 using CarBootFinderAPI.Repositories;
-using CarBootFinderAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 
 namespace CarBootFinderAPI.Functions;
 
@@ -32,11 +28,8 @@ public class Sales
     {
         if (req.Method == HttpMethods.Post)
         {
-            var reqBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var coverImage = req.Form.Files["CoverImage"];
-
-            var saleInput = await _saleAssembler.SanitiseValidateFormInput(
-                JsonConvert.DeserializeObject<RegisterSaleFormInputModel>(reqBody), coverImage);
+            var form = await req.ReadFormAsync();
+            var saleInput = await _saleAssembler.SanitiseValidateFormInput(form);
             var createdSale = _saleAssembler.CreateSale(saleInput);
             
             await _saleRepository.CreateAsync(createdSale);

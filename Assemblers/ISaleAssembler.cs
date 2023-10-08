@@ -11,6 +11,6 @@ public interface ISaleAssembler
 
     SaleModel CreateSaleUpdate(SaleInputModel saleInputModel, SaleModel saleModel);
     public LocationModel AssembleLocation(double longitude, double latitude);
-    public Task<SaleInputModel> SanitiseValidateFormInput(RegisterSaleFormInputModel formInput, IFormFile coverImage);
+    public Task<SaleInputModel> SanitiseValidateFormInput(IFormCollection form);
     public List<SaleModel> CalculateDistance(IList<SaleModel> sales);
 }
