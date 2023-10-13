@@ -6,7 +6,6 @@ using Azure.Storage;
 using Azure.Storage.Blobs;
 using CarBootFinderAPI.Models.BlobStorage;
 using Microsoft.AspNetCore.Http;
-using ZstdSharp.Unsafe;
 
 namespace CarBootFinderAPI.Utilities;
 
@@ -85,5 +84,18 @@ public class FileService
         }
 
         return null;
+    }
+
+    public async Task<BlobResponseDto> DeleteAsync(string blobFileName)
+    {
+        var file = _filesContainer.GetBlobClient(blobFileName);
+
+        await file.DeleteAsync();
+
+        return new BlobResponseDto()
+        {
+            Error = false,
+            Status = $"File deleted: {blobFileName}"
+        };
     }
 }
