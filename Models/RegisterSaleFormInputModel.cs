@@ -9,7 +9,7 @@ public class RegisterSaleFormInputModel
     public string Latitude { get; set; }
     public string Address { get; set; }
     public string Region { get; set; }
-    public List<string> DaysOpen { get; set; }
+    public string DaysOpen { get; set; }
     public string Frequency { get; set; }
     public string OpenBankHolidays { get; set; }
     public string BankHolidayAdditionalInfo { get; set; }

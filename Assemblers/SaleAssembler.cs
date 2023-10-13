@@ -77,8 +77,6 @@ public class SaleAssembler : ISaleAssembler
 
     public async Task<SaleInputModel> SanitiseValidateFormInput(IFormCollection form)
     {
-        
-        
         return new SaleInputModel()
         {
             AdminApproved = false,
@@ -88,7 +86,7 @@ public class SaleAssembler : ISaleAssembler
                 double.Parse(form["Latitude"])),
             Address = SanitiseAddress(form["Address"]),
             Region = ParseRegion(CleanText(form["Region"])),
-            DaysOpen = ParseDays(form["DaysOpen"]), //todo this has changed format
+            DaysOpen = ParseDays(form["DaysOpen"]),
             Frequency = CleanText(form["Frequency"]),
             OpenBankHolidays = ParseBoolNull(CleanText(form["OpenBankHolidays"])),
             BankHolidayAdditionalInfo = CleanText(form["BankHolidayAdditionalInfo"]),
@@ -116,7 +114,7 @@ public class SaleAssembler : ISaleAssembler
                 form["OrganiserPrivateEmailAddress"],
                 form["Website"],
                 form["FacebookGroup"]),
-            CoverImage = await SanitiseValidateCoverImage(form.Files["CoverImage"]) 
+            CoverImage = await SanitiseValidateCoverImage(form.Files["CoverImage"])
         };
     }
     
@@ -167,8 +165,9 @@ public class SaleAssembler : ISaleAssembler
         };
     }
 
-    private static List<string> ParseDays(IEnumerable<string> days)
+    private static List<string> ParseDays(string daysInput)
     {
+        var days = daysInput.Split(",").Select(CleanText).ToList();
         return days.Where(day => Constants.Days.AllDays.Contains(day)).ToList();
     }
     
@@ -228,6 +227,9 @@ public class SaleAssembler : ISaleAssembler
 
     private static async Task<CoverImage> SanitiseValidateCoverImage(IFormFile formFile)
     {
+        if (formFile == null)
+            return null;
+        
         return new CoverImage()
         {
             Filename = SanitisedFileName(formFile.FileName) + ".jpg",
