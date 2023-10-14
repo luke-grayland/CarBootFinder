@@ -1,7 +1,7 @@
 using System;
-using CarBootFinderAPI.Assemblers;
-using CarBootFinderAPI.Repositories;
-using CarBootFinderAPI.Utilities;
+using CarBootFinderAPI.Shared.Assemblers;
+using CarBootFinderAPI.Shared.Repositories;
+using CarBootFinderAPI.Shared.Services;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 

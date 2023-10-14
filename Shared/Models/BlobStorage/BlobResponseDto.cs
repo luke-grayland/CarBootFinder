@@ -1,4 +1,4 @@
-namespace CarBootFinderAPI.Models.BlobStorage;
+namespace CarBootFinderAPI.Shared.Models.BlobStorage;
 
 public class BlobResponseDto
 {

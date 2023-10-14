@@ -24,4 +24,8 @@
             <CopyToPublishDirectory>Never</CopyToPublishDirectory>
         </None>
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Functions\Watchers\" />
+      <Folder Include="Shared\" />
+    </ItemGroup>
 </Project>

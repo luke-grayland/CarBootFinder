@@ -1,6 +1,6 @@
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace CarBootFinderAPI.Models;
+namespace CarBootFinderAPI.Shared.Models.SaleInfo;
 
 public class EntryModel
 {

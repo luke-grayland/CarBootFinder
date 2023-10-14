@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using CarBootFinderAPI.Shared.Models.SaleInfo;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace CarBootFinderAPI.Models;
+namespace CarBootFinderAPI.Shared.Models;
 
 public abstract class SaleBaseModel
 {

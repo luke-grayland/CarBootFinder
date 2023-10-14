@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using CarBootFinderAPI.Models;
-using CarBootFinderAPI.Utilities;
+using CarBootFinderAPI.Shared.Models;
+using CarBootFinderAPI.Shared.Models.SaleInfo;
+using CarBootFinderAPI.Shared.Services;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace CarBootFinderAPI.Repositories;
+namespace CarBootFinderAPI.Shared.Repositories;
 
 public class SaleRepository : ISaleRepository
 {

@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CarBootFinderAPI.Models;
+using CarBootFinderAPI.Shared.Models;
+using CarBootFinderAPI.Shared.Models.SaleInfo;
 using Microsoft.AspNetCore.Http;
 
-namespace CarBootFinderAPI.Assemblers;
+namespace CarBootFinderAPI.Shared.Assemblers;
 
 public interface ISaleAssembler
 {

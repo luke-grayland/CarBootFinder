@@ -1,6 +1,6 @@
 using MongoDB.Driver;
 
-namespace CarBootFinderAPI.Utilities;
+namespace CarBootFinderAPI.Shared.Services;
 
 public class DatabaseService : IDatabaseService
 {

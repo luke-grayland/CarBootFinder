@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CarBootFinderAPI.Models;
+using CarBootFinderAPI.Shared.Models;
+using CarBootFinderAPI.Shared.Models.SaleInfo;
 
-namespace CarBootFinderAPI.Repositories;
+namespace CarBootFinderAPI.Shared.Repositories;
 
 public interface ISaleRepository
 {

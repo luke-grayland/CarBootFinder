@@ -5,14 +5,15 @@ using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using CarBootFinderAPI.Models;
+using CarBootFinderAPI.Shared.Models;
+using CarBootFinderAPI.Shared.Models.SaleInfo;
 using Microsoft.AspNetCore.Http;
 using MongoDB.Bson;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Processing;
 
-namespace CarBootFinderAPI.Assemblers;
+namespace CarBootFinderAPI.Shared.Assemblers;
 
 public class SaleAssembler : ISaleAssembler
 {

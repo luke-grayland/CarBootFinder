@@ -1,17 +1,16 @@
 using System.IO;
 using System.Threading.Tasks;
 using System.Web.Http;
-using CarBootFinderAPI.Assemblers;
-using CarBootFinderAPI.Repositories;
-using CarBootFinderAPI.Models;
+using CarBootFinderAPI.Shared.Assemblers;
+using CarBootFinderAPI.Shared.Models;
+using CarBootFinderAPI.Shared.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using MongoDB.Driver;
 using Newtonsoft.Json;
 
-namespace CarBootFinderAPI.Functions;
+namespace CarBootFinderAPI.Functions.Sales;
 
 public class SalesById
 {

@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace CarBootFinderAPI.Models.BlobStorage;
+namespace CarBootFinderAPI.Shared.Models.BlobStorage;
 
 public class BlobDto
 {

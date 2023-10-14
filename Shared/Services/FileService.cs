@@ -4,10 +4,10 @@ using System.IO;
 using System.Threading.Tasks;
 using Azure.Storage;
 using Azure.Storage.Blobs;
-using CarBootFinderAPI.Models.BlobStorage;
+using CarBootFinderAPI.Shared.Models.BlobStorage;
 using Microsoft.AspNetCore.Http;
 
-namespace CarBootFinderAPI.Utilities;
+namespace CarBootFinderAPI.Shared.Services;
 
 public class FileService
 {
