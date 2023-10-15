@@ -26,7 +26,7 @@ public class EmailService : IEmailService
         var mailMessage = new MailMessage
         {
             From = new MailAddress("CarBootFinder@carbootfinderapp.com"),
-            Subject = $"{unapprovedSales.Count} Unapproved Car Boot(s)",
+            Subject = $"{unapprovedSales.Count} Unapproved Car Boot(s) - {DateTime.Now}",
             Body = CreateEmailBody(unapprovedSales),
             IsBodyHtml = true,
         };
