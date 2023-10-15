@@ -13,7 +13,7 @@ public class EmailService : IEmailService
     {
         return new SmtpClient(Environment.GetEnvironmentVariable("SmtpServer"))
         {
-            Port = 587,
+            Port = Constants.SystemSettings.SmtpServerPort,
             Credentials = new NetworkCredential(
                 Environment.GetEnvironmentVariable("SmtpUsername"),
                 Environment.GetEnvironmentVariable("SmtpPassword")),

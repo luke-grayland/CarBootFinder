@@ -1,12 +1,9 @@
 using System;
 using System.Linq;
-using System.Net;
-using System.Net.Mail;
 using System.Threading.Tasks;
 using CarBootFinderAPI.Shared.Repositories;
 using CarBootFinderAPI.Shared.Services;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 
 namespace CarBootFinderAPI.Functions.Watchers;
