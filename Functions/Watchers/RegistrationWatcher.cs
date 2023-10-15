@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using CarBootFinderAPI.Shared.Constants;
 using CarBootFinderAPI.Shared.Repositories;
 using CarBootFinderAPI.Shared.Services;
 using Microsoft.Azure.WebJobs;
@@ -20,7 +21,7 @@ public class RegistrationWatcher
     }
     
     [FunctionName("RegistrationWatcher")]
-    public async Task RunAsync([TimerTrigger("0 0 7 * * *")] TimerInfo myTimer, ILogger log)
+    public async Task RunAsync([TimerTrigger(SystemSettings.EmailTimerCronExpression)] TimerInfo myTimer, ILogger log)
     {
         var unapprovedSales = await _saleRepository.GetUnapprovedSales();
 
