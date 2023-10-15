@@ -7,5 +7,5 @@ namespace CarBootFinderAPI.Shared.Services;
 public interface IEmailService
 {
     SmtpClient GetSmtpClient();
-    MailMessage CreateUnapprovedSalesEmail(IList<SaleModel> unapprovedSales);
+    MailMessage CreateUnapprovedSalesEmail(IList<SaleModel> unapprovedSales, IList<SaleModel> duplicateSales);
 }

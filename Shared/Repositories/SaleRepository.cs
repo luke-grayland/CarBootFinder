@@ -51,6 +51,21 @@ public class SaleRepository : ISaleRepository
         return await _collection.Find(getUnapprovedSalesFilter).ToListAsync();
     }
 
+    public async Task<List<SaleModel>> CheckDuplicateSales(IList<SaleModel> unapprovedSales)
+    {
+        var duplicateSales = new List<SaleModel>();
+        
+        foreach (var unapprovedSale in unapprovedSales)
+        {
+            var matches = await _collection.Find(MatchDuplicateFilter(unapprovedSale)).ToListAsync();
+            
+            if(matches.Any()) 
+                duplicateSales.AddRange(matches);
+        }
+
+        return duplicateSales;
+    }
+
     public async Task<SaleModel> GetByIdAsync(string id)
     {
         if (string.IsNullOrEmpty(id))
@@ -91,5 +106,23 @@ public class SaleRepository : ISaleRepository
     {
         return Builders<SaleModel>.Filter.Eq("region", region);
     }
-    
+
+    private static FilterDefinition<SaleModel> MatchDuplicateFilter(SaleBaseModel unapprovedSale)
+    {
+        var filterBuilder = Builders<SaleModel>.Filter; 
+        
+        var nameMatch = filterBuilder.Eq("name", unapprovedSale.Name);
+        var contactNumberMatch = filterBuilder.Eq(
+            "organiserDetails.phoneNumber", unapprovedSale.OrganiserDetails.PhoneNumber);
+        var publicEmail = filterBuilder.Eq("organiserDetails.publicEmailAddress",
+            unapprovedSale.OrganiserDetails.PublicEmailAddress);
+        var privateEmail = filterBuilder.Eq("organiserDetails.privateEmailAddress",
+            unapprovedSale.OrganiserDetails.PrivateEmailAddress);
+        var address = filterBuilder.Eq("address", unapprovedSale.Address);
+
+        var combinedFilter = filterBuilder.Or(nameMatch, contactNumberMatch, publicEmail, privateEmail, address);
+
+        return combinedFilter;
+    }
+
 }

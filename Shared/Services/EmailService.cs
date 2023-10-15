@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -21,14 +22,14 @@ public class EmailService : IEmailService
         };
     }
 
-    public MailMessage CreateUnapprovedSalesEmail(IList<SaleModel> unapprovedSales)
+    public MailMessage CreateUnapprovedSalesEmail(IList<SaleModel> unapprovedSales, IList<SaleModel> duplicateSales)
     {
         var mailMessage = new MailMessage
         {
             
             From = new MailAddress("CarBootFinder@carbootfinderapp.com"),
             Subject = $"{unapprovedSales.Count} Unapproved Car Boot(s) - {DateTime.Now}",
-            Body = CreateEmailBody(unapprovedSales),
+            Body = CreateEmailBody(unapprovedSales, duplicateSales),
             IsBodyHtml = true,
         };
 
@@ -37,13 +38,19 @@ public class EmailService : IEmailService
         return mailMessage;
     }
 
-    private static string CreateEmailBody(IList<SaleModel> unapprovedSales)
+    private static string CreateEmailBody(IEnumerable<SaleModel> unapprovedSales, IEnumerable<SaleModel> duplicateSales)
     {
         var emailBody = new StringBuilder();
-        
+
+        foreach (var duplicateSale in duplicateSales)
+        {
+            emailBody.AppendLine($"Potential Duplicate: {duplicateSale.Name} - {duplicateSale.Id}");
+            emailBody.AppendLine("<br />");
+        }
         
         foreach (var unapprovedSale in unapprovedSales)
         {
+            emailBody.AppendLine("<br />");
             emailBody.AppendLine($"Name: {unapprovedSale.Name}");
             emailBody.AppendLine("<br />");
             emailBody.AppendLine($"Coordinates: {unapprovedSale.Location.Coordinates[0]}, {unapprovedSale.Location.Coordinates[1]}");

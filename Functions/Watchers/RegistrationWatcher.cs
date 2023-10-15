@@ -28,8 +28,10 @@ public class RegistrationWatcher
         if (!unapprovedSales.Any())
             return;
         
+        var duplicateSales = await _saleRepository.CheckDuplicateSales(unapprovedSales);
+        
         var smtpClient = _emailService.GetSmtpClient();
-        var email = _emailService.CreateUnapprovedSalesEmail(unapprovedSales);
+        var email = _emailService.CreateUnapprovedSalesEmail(unapprovedSales, duplicateSales);
         
         try
         {

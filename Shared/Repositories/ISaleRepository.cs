@@ -16,4 +16,5 @@ public interface ISaleRepository
     Task<List<SaleModel>> GetSalesByNearest(LocationModel locationModel);
     Task<List<SaleModel>> GetSalesByRegion(string region);
     Task<List<SaleModel>> GetUnapprovedSales();
+    Task<List<SaleModel>> CheckDuplicateSales(IList<SaleModel> unapprovedSales);
 }
