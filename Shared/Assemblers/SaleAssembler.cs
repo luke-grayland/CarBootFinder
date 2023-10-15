@@ -1,17 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using CarBootFinderAPI.Shared.Models;
+using CarBootFinderAPI.Shared.Models.Sale;
 using CarBootFinderAPI.Shared.Models.SaleInfo;
 using Microsoft.AspNetCore.Http;
 using MongoDB.Bson;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Processing;
 
 namespace CarBootFinderAPI.Shared.Assemblers;
 
@@ -44,7 +39,7 @@ public class SaleAssembler : ISaleAssembler
             PetFriendly = saleInputModel.PetFriendly,
             OtherInfo = saleInputModel.OtherInfo,
             OrganiserDetails = saleInputModel.OrganiserDetails,
-            CoverImage = saleInputModel.CoverImage
+            CoverImageUrl = saleInputModel.CoverImageUrl
         };
     }
 
@@ -66,7 +61,7 @@ public class SaleAssembler : ISaleAssembler
         foreach (var sale in sales)
             if (sale.Location.DistanceInMeters != 0)
                 sale.Location.DistanceInMiles = 
-                    sale.Location.DistanceInMeters * Constants.Search.MeterToMileMultiplier;
+                    sale.Location.DistanceInMeters * Constants.Constants.Search.MeterToMileMultiplier;
             
         return sales.ToList();
     }
@@ -76,7 +71,7 @@ public class SaleAssembler : ISaleAssembler
         return CreateLocation(longitude, latitude);
     }
 
-    public async Task<SaleInputModel> SanitiseValidateFormInput(IFormCollection form)
+    public SaleInputModel SanitiseValidateFormInput(IFormCollection form, string coverImageUrl)
     {
         return new SaleInputModel()
         {
@@ -115,7 +110,7 @@ public class SaleAssembler : ISaleAssembler
                 form["OrganiserPrivateEmailAddress"],
                 form["Website"],
                 form["FacebookGroup"]),
-            CoverImage = await SanitiseValidateCoverImage(form.Files["CoverImage"])
+            CoverImageUrl = coverImageUrl
         };
     }
     
@@ -169,7 +164,7 @@ public class SaleAssembler : ISaleAssembler
     private static List<string> ParseDays(string daysInput)
     {
         var days = daysInput.Split(",").Select(CleanText).ToList();
-        return days.Where(day => Constants.Days.AllDays.Contains(day)).ToList();
+        return days.Where(day => Constants.Constants.Days.AllDays.Contains(day)).ToList();
     }
     
     private static bool IsValidEmail(string email)
@@ -187,12 +182,12 @@ public class SaleAssembler : ISaleAssembler
 
     private static string ParseRegion(string region)
     {
-        return Constants.Region.AllRegions.Any(x => x.Value == region) ? region : null;
+        return Constants.Constants.Region.AllRegions.Any(x => x.Value == region) ? region : null;
     }
 
     private static string ParseEnvironment(string environment)
     {
-        return Constants.Environment.AllEnvironments.Contains(environment) ? environment : null;
+        return Constants.Constants.Environment.AllEnvironments.Contains(environment) ? environment : null;
     }
 
     private static double ParseFee(string fee)
@@ -224,41 +219,5 @@ public class SaleAssembler : ISaleAssembler
     {
         const string pattern = @"[^a-zA-Z0-9\s,.\-]";
         return Regex.Replace(address, pattern, "");
-    }
-
-    private static async Task<CoverImage> SanitiseValidateCoverImage(IFormFile formFile)
-    {
-        if (formFile == null)
-            return null;
-        
-        return new CoverImage()
-        {
-            Filename = SanitisedFileName(formFile.FileName) + ".jpg",
-            Data = await NormaliseImage(formFile)
-        };
-    }
-
-    private static string SanitisedFileName(string fileName)
-    {
-        var sanitizedFileName = Path.GetFileNameWithoutExtension(fileName);
-        return string.Join("_", sanitizedFileName.Split(Path.GetInvalidFileNameChars()));
-    }
-
-    private static async Task<byte[]> NormaliseImage(IFormFile formFile)
-    {
-        using var memoryStream = new MemoryStream();
-        await formFile.CopyToAsync(memoryStream);
-        var image = Image.Load(memoryStream.ToArray());
-        
-        image.Mutate(x => x.Resize(new ResizeOptions
-        {
-            Size = new Size(800, 600),
-            Mode = ResizeMode.Max
-        }));
-        
-        memoryStream.Position = 0;
-        await image.SaveAsync(memoryStream, new JpegEncoder());
-        
-        return memoryStream.ToArray();
     }
 }

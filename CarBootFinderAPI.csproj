@@ -26,6 +26,5 @@
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Functions\Watchers\" />
-      <Folder Include="Shared\" />
     </ItemGroup>
 </Project>

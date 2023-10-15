@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using CarBootFinderAPI.Shared.Models.SaleInfo;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace CarBootFinderAPI.Shared.Models;
+namespace CarBootFinderAPI.Shared.Models.Sale;
 
 public abstract class SaleBaseModel
 {
@@ -73,5 +73,5 @@ public abstract class SaleBaseModel
     public OrganiserDetailsModel OrganiserDetails { get; set; }
     
     [BsonElement("coverImage")]
-    public CoverImage CoverImage { get; set; }   
+    public string CoverImageUrl { get; set; }   
 }

@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CarBootFinderAPI.Shared.Constants;
 using CarBootFinderAPI.Shared.Models;
+using CarBootFinderAPI.Shared.Models.Sale;
 using CarBootFinderAPI.Shared.Models.SaleInfo;
 using CarBootFinderAPI.Shared.Services;
 using MongoDB.Bson;
@@ -14,11 +16,11 @@ public class SaleRepository : ISaleRepository
 {
     private readonly IMongoCollection<SaleModel> _collection;
     private const double MaxDistanceInRadians = 
-        SystemSettings.SearchMaxDistanceKilometers / Constants.Search.EarthRadiusKilometers;
+        SystemSettings.SearchMaxDistanceKilometers / Constants.Constants.Search.EarthRadiusKilometers;
     
     public SaleRepository(IDatabaseService databaseService)
     {
-        _collection = databaseService.GetDb().GetCollection<SaleModel>(Constants.Collections.Sales);
+        _collection = databaseService.GetDb().GetCollection<SaleModel>(Constants.Constants.Collections.Sales);
     }
     
     public async Task<List<SaleModel>> GetSalesByNearest(LocationModel locationModel)
@@ -33,7 +35,7 @@ public class SaleRepository : ISaleRepository
 
     public async Task<List<SaleModel>> GetSalesByRegion(string region)
     {
-        var matchedRegion = Constants.Region.AllRegions
+        var matchedRegion = Constants.Constants.Region.AllRegions
             .Select(x => new KeyValuePair<string,string>(x.Key.ToLower(), x.Value))
             .FirstOrDefault(x => x.Key == region);
         

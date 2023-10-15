@@ -11,44 +11,37 @@ namespace CarBootFinderAPI.Shared.Services;
 
 public class FileService
 {
-    private readonly string _storageAccount = "apiazureuploads";
-    private readonly string _key = "xxx";
+    private const string BlobContainer = "car-boot-finder-cover-images";
     private readonly BlobContainerClient _filesContainer;
 
     public FileService()
     {
-        var credential = new StorageSharedKeyCredential(_storageAccount, _key);
-        var blobUri = $"https://{_storageAccount}.blob.core.windows.net";
+        var credential = new StorageSharedKeyCredential(
+            Environment.GetEnvironmentVariable("BlobStorageAccountName"),
+            Environment.GetEnvironmentVariable("BlobStorageAccountKey"));
+        
+        var blobUri = Environment.GetEnvironmentVariable("BlobStorageUrl");
+
+        if (blobUri == null) return;
         var blobServiceClient = new BlobServiceClient(new Uri(blobUri), credential);
-        _filesContainer = blobServiceClient.GetBlobContainerClient("files");
-    }
-
-    public async Task<List<BlobDto>> ListASync()
-    {
-        var files = new List<BlobDto>();
-
-        await foreach (var file in _filesContainer.GetBlobsAsync())
-        {
-            var uri = _filesContainer.Uri.ToString();
-            var name = file.Name;
-            var fullUri = $"{uri}/{name}";
-            
-            files.Add(new BlobDto()
-            {
-                Uri = fullUri,
-                Name = name,
-                ContentType = file.Properties.ContentType
-            });
-        }
-        return files;
+        _filesContainer = blobServiceClient.GetBlobContainerClient(BlobContainer);
     }
 
     public async Task<BlobResponseDto> UploadAsync(IFormFile blob)
     {
         var response = new BlobResponseDto();
-        var client = _filesContainer.GetBlobClient((blob.FileName));
-
-        await using (Stream? data = blob.OpenReadStream())
+        
+        if (!FileTypeValidation(blob))
+        {
+            response.Status = "Invalid file type";
+            response.Error = true;
+            return response;
+        }
+        
+        var fileName = SanitiseFileName(blob.FileName) + ".jpg";
+        var client = _filesContainer.GetBlobClient(fileName);
+        
+        await using (var data = blob.OpenReadStream())
         {
             await client.UploadAsync(data);
         }
@@ -59,31 +52,6 @@ public class FileService
         response.Blob.Name = client.Name;
 
         return response;
-    }
-
-    public async Task<BlobDto?> DownloadAsync(string blobFilename)
-    {
-        var file = _filesContainer.GetBlobClient(blobFilename);
-
-        if (await file.ExistsAsync())
-        {
-            var data = await file.OpenReadAsync();
-            var blobContent = data;
-
-            var content = await file.DownloadContentAsync();
-
-            var name = blobFilename;
-            var contentType = content.Value.Details.ContentType;
-
-            return new BlobDto()
-            {
-                Content = blobContent,
-                Name = name,
-                ContentType = contentType
-            };
-        }
-
-        return null;
     }
 
     public async Task<BlobResponseDto> DeleteAsync(string blobFileName)
@@ -98,4 +66,39 @@ public class FileService
             Status = $"File deleted: {blobFileName}"
         };
     }
+    
+    private static string SanitiseFileName(string fileName)
+    {
+        var sanitizedFileName = Path.GetFileNameWithoutExtension(fileName);
+        return string.Join("_", sanitizedFileName.Split(Path.GetInvalidFileNameChars()));
+    }
+    
+    private static bool FileTypeValidation(IFormFile file)
+    {
+        var allowedTypes = new List<string> { "image/jpeg", "image/png" };
+
+        if (file != null && file.Length > 0)
+        {
+            using var ms = new MemoryStream();
+            file.CopyTo(ms);
+            var fileBytes = ms.ToArray();
+            var fileType = GetFileType(fileBytes);
+            return allowedTypes.Contains(fileType);
+        }
+
+        return false;
+    }
+    
+    private static string GetFileType(byte[] fileBytes)
+    {
+        return fileBytes.Length switch
+        {
+            > 2 when fileBytes[0] == 0xFF && fileBytes[1] == 0xD8 => "image/jpeg",
+            > 8 when fileBytes[0] == 0x89 && fileBytes[1] == 0x50 && fileBytes[2] == 0x4E && fileBytes[3] == 0x47 &&
+                     fileBytes[4] == 0x0D && fileBytes[5] == 0x0A && fileBytes[6] == 0x1A &&
+                     fileBytes[7] == 0x0A => "image/png",
+            _ => null
+        };
+    }
+
 }

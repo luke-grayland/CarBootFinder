@@ -1,6 +1,6 @@
 using MongoDB.Bson;
 
-namespace CarBootFinderAPI.Shared.Models;
+namespace CarBootFinderAPI.Shared.Models.Sale;
 
 public class SaleModel : SaleBaseModel
 {

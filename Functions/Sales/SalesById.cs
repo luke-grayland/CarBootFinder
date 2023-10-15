@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using CarBootFinderAPI.Shared.Assemblers;
 using CarBootFinderAPI.Shared.Models;
+using CarBootFinderAPI.Shared.Models.Sale;
 using CarBootFinderAPI.Shared.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

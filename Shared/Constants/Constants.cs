@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
-namespace CarBootFinderAPI;
+namespace CarBootFinderAPI.Shared.Constants;
 
 public static class Constants
 {

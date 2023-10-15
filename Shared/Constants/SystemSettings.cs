@@ -1,4 +1,4 @@
-namespace CarBootFinderAPI;
+namespace CarBootFinderAPI.Shared.Constants;
 
 public static class SystemSettings
 {
