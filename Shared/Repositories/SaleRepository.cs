@@ -44,7 +44,13 @@ public class SaleRepository : ISaleRepository
 
         return await _collection.Find(GetByRegionFilter(matchedRegion.Value)).ToListAsync();
     }
-    
+
+    public async Task<List<SaleModel>> GetUnapprovedSales()
+    {
+        var getUnapprovedSalesFilter = Builders<SaleModel>.Filter.Eq("adminApproved", false);
+        return await _collection.Find(getUnapprovedSalesFilter).ToListAsync();
+    }
+
     public async Task<SaleModel> GetByIdAsync(string id)
     {
         if (string.IsNullOrEmpty(id))

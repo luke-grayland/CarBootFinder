@@ -15,6 +15,7 @@ public class Startup : FunctionsStartup
     {
         builder.Services.AddScoped<ISaleAssembler, SaleAssembler>();
         builder.Services.AddScoped<ISaleRepository, SaleRepository>();
+        builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddSingleton<IDatabaseService>(new DatabaseService(Environment.GetEnvironmentVariable("MongoDbConnection")));
         builder.Services.AddSingleton<FileService>();
     }
