@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CarBootFinderAPI.Shared.Constants;
-using CarBootFinderAPI.Shared.Models;
 using CarBootFinderAPI.Shared.Models.Sale;
 using CarBootFinderAPI.Shared.Models.SaleInfo;
 using CarBootFinderAPI.Shared.Services;
@@ -15,9 +13,7 @@ namespace CarBootFinderAPI.Shared.Repositories;
 public class SaleRepository : ISaleRepository
 {
     private readonly IMongoCollection<SaleModel> _collection;
-    private const double MaxDistanceInRadians = 
-        SystemSettings.SearchMaxDistanceKilometers / Constants.Constants.Search.EarthRadiusKilometers;
-    
+
     public SaleRepository(IDatabaseService databaseService)
     {
         _collection = databaseService.GetDb().GetCollection<SaleModel>(Constants.Constants.Collections.Sales);
@@ -25,9 +21,10 @@ public class SaleRepository : ISaleRepository
     
     public async Task<List<SaleModel>> GetSalesByNearest(LocationModel locationModel)
     {
-        var pipeline = new BsonDocument[]
+        var pipeline = new []
         {
-            BsonDocument.Parse($"{{ $geoNear: {{ near: {{ type: 'Point', coordinates: [{locationModel.Coordinates[0]}, {locationModel.Coordinates[1]}] }}, distanceField: 'location.distanceInMeters', spherical: true }} }}")
+            BsonDocument.Parse($"{{ $geoNear: {{ near: {{ type: 'Point', coordinates: [{locationModel.Coordinates[0]}, {locationModel.Coordinates[1]}] }}, distanceField: 'location.distanceInMeters', spherical: true }} }}"),
+            BsonDocument.Parse($"{{ $match: {{ adminApproved: true }} }}")
         };
 
         return await _collection.Aggregate<SaleModel>(pipeline).ToListAsync();
@@ -42,25 +39,30 @@ public class SaleRepository : ISaleRepository
         if (matchedRegion.Key == null || matchedRegion.Value == null)
             throw new ArgumentException("Invalid region");
 
-        return await _collection.Find(GetByRegionFilter(matchedRegion.Value)).ToListAsync();
+        var filter = GetFilterBase().And(GetAdminApprovedFilter(), GetByRegionFilter(matchedRegion.Value));
+        
+        return await _collection.Find(filter).ToListAsync();
     }
 
     public async Task<List<SaleModel>> GetUnapprovedSales()
     {
-        var getUnapprovedSalesFilter = Builders<SaleModel>.Filter.Eq("adminApproved", false);
+        var getUnapprovedSalesFilter = GetFilterBase().Eq("adminApproved", false);
         return await _collection.Find(getUnapprovedSalesFilter).ToListAsync();
     }
 
-    public async Task<List<SaleModel>> CheckDuplicateSales(IList<SaleModel> unapprovedSales)
+    public async Task<List<SaleModel>> CheckDuplicateSales(IEnumerable<SaleModel> unapprovedSales)
     {
         var duplicateSales = new List<SaleModel>();
         
         foreach (var unapprovedSale in unapprovedSales)
         {
-            var matches = await _collection.Find(MatchDuplicateFilter(unapprovedSale)).ToListAsync();
-            
-            if(matches.Any()) 
-                duplicateSales.AddRange(matches);
+            var filter = GetFilterBase().And(GetAdminApprovedFilter(), MatchDuplicateFilter(unapprovedSale));
+            var matches = await _collection.Find(filter).ToListAsync();
+
+            if (!matches.Any()) continue;
+
+            foreach (var match in matches.Where(match => duplicateSales.All(x => x.Id != match.Id)))
+                duplicateSales.Add(match);
         }
 
         return duplicateSales;
@@ -71,12 +73,14 @@ public class SaleRepository : ISaleRepository
         if (string.IsNullOrEmpty(id))
             throw new ArgumentException("Id cannot be null or empty");
 
-        return await _collection.Find(GetByIdFilter(id)).FirstOrDefaultAsync();
+        var filter = GetFilterBase().And(GetByIdFilter(id), GetAdminApprovedFilter());
+        
+        return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 
     public async Task<IEnumerable<SaleModel>> GetAllAsync()
     {
-        return await _collection.Find(x => true).ToListAsync();
+        return await _collection.Find(GetAdminApprovedFilter()).ToListAsync();
     }
 
     public async Task CreateAsync(SaleModel sale)
@@ -99,30 +103,56 @@ public class SaleRepository : ISaleRepository
     
     private static FilterDefinition<SaleModel> GetByIdFilter(string id)
     {
-        return Builders<SaleModel>.Filter.Eq("_id", ObjectId.Parse(id));
+        return GetFilterBase().Eq("_id", ObjectId.Parse(id));
     }
 
     private static FilterDefinition<SaleModel> GetByRegionFilter(string region)
     {
-        return Builders<SaleModel>.Filter.Eq("region", region);
+        return GetFilterBase().Eq("region", region);
     }
-
+    
     private static FilterDefinition<SaleModel> MatchDuplicateFilter(SaleBaseModel unapprovedSale)
     {
-        var filterBuilder = Builders<SaleModel>.Filter; 
-        
-        var nameMatch = filterBuilder.Eq("name", unapprovedSale.Name);
-        var contactNumberMatch = filterBuilder.Eq(
-            "organiserDetails.phoneNumber", unapprovedSale.OrganiserDetails.PhoneNumber);
-        var publicEmail = filterBuilder.Eq("organiserDetails.publicEmailAddress",
-            unapprovedSale.OrganiserDetails.PublicEmailAddress);
-        var privateEmail = filterBuilder.Eq("organiserDetails.privateEmailAddress",
-            unapprovedSale.OrganiserDetails.PrivateEmailAddress);
-        var address = filterBuilder.Eq("address", unapprovedSale.Address);
+        var filterBuilder = GetFilterBase();
+        var filters = new List<FilterDefinition<SaleModel>> { GetAdminApprovedFilter() };
 
-        var combinedFilter = filterBuilder.Or(nameMatch, contactNumberMatch, publicEmail, privateEmail, address);
+        var orFilters = new List<FilterDefinition<SaleModel>>();
+
+        if (!string.IsNullOrEmpty(unapprovedSale.Name))
+            orFilters.Add(filterBuilder.Eq("name", unapprovedSale.Name));
+
+        if (!string.IsNullOrEmpty(unapprovedSale.OrganiserDetails?.PhoneNumber))
+            orFilters.Add(filterBuilder.Eq("organiserDetails.phoneNumber", 
+                unapprovedSale.OrganiserDetails.PhoneNumber));
+
+        if (!string.IsNullOrEmpty(unapprovedSale.OrganiserDetails?.PublicEmailAddress))
+            orFilters.Add(filterBuilder.Eq("organiserDetails.publicEmailAddress", 
+                unapprovedSale.OrganiserDetails.PublicEmailAddress));
+
+        if (!string.IsNullOrEmpty(unapprovedSale.OrganiserDetails?.PrivateEmailAddress))
+            orFilters.Add(filterBuilder.Eq("organiserDetails.privateEmailAddress", 
+                unapprovedSale.OrganiserDetails.PrivateEmailAddress));
+
+        if (!string.IsNullOrEmpty(unapprovedSale.Address))
+            orFilters.Add(filterBuilder.Eq("address", unapprovedSale.Address));
+
+        if (orFilters.Any())
+            filters.Add(filterBuilder.Or(orFilters));
+        
+        var combinedFilter = filterBuilder.And(filters);
 
         return combinedFilter;
     }
+
+    private static FilterDefinition<SaleModel> GetAdminApprovedFilter()
+    {
+        return GetFilterBase().Eq("adminApproved", true);
+    }
+
+    private static FilterDefinitionBuilder<SaleModel> GetFilterBase()
+    {
+        return Builders<SaleModel>.Filter;
+    }
+
 
 }

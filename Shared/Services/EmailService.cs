@@ -26,7 +26,6 @@ public class EmailService : IEmailService
     {
         var mailMessage = new MailMessage
         {
-            
             From = new MailAddress("CarBootFinder@carbootfinderapp.com"),
             Subject = $"{unapprovedSales.Count} Unapproved Car Boot(s) - {DateTime.Now}",
             Body = CreateEmailBody(unapprovedSales, duplicateSales),
@@ -38,7 +37,7 @@ public class EmailService : IEmailService
         return mailMessage;
     }
 
-    private static string CreateEmailBody(IEnumerable<SaleModel> unapprovedSales, IEnumerable<SaleModel> duplicateSales)
+    private static string CreateEmailBody(IEnumerable<SaleModel> unapprovedSales, IList<SaleModel> duplicateSales)
     {
         var emailBody = new StringBuilder();
 
@@ -47,6 +46,9 @@ public class EmailService : IEmailService
             emailBody.AppendLine($"Potential Duplicate: {duplicateSale.Name} - {duplicateSale.Id}");
             emailBody.AppendLine("<br />");
         }
+        
+        if (duplicateSales.Any())
+            emailBody.AppendLine("<br />");
         
         foreach (var unapprovedSale in unapprovedSales)
         {
