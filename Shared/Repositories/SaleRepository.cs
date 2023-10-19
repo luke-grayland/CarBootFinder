@@ -34,7 +34,7 @@ public class SaleRepository : ISaleRepository
     {
         var matchedRegion = Constants.Constants.Region.AllRegions
             .Select(x => new KeyValuePair<string,string>(x.Key.ToLower(), x.Value))
-            .FirstOrDefault(x => x.Key == region);
+            .FirstOrDefault(x => x.Key == region.ToLower());
         
         if (matchedRegion.Key == null || matchedRegion.Value == null)
             throw new ArgumentException("Invalid region");
