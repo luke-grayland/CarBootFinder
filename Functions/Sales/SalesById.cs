@@ -54,6 +54,6 @@ public class SalesById
             return sale == null ? new NotFoundResult() : new OkObjectResult(sale);     
         }
 
-        return new BadRequestErrorMessageResult("HTTP route not supported");
+        return new NotFoundResult();
     }
 }

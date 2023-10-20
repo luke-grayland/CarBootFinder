@@ -37,7 +37,7 @@ public class Sales
             
             var saleInput = _saleAssembler.SanitiseValidateFormInput(form, coverImageUrl);
             var createdSale = _saleAssembler.CreateSale(saleInput);
-            
+
             await _saleRepository.CreateAsync(createdSale);
             return new CreatedResult("/sales", createdSale);
         }
@@ -48,7 +48,7 @@ public class Sales
             return new OkObjectResult(sales);    
         }
 
-        return new BadRequestErrorMessageResult("HTTP route not supported");
+        return new NotFoundResult();
     }
 
     private static async Task<string> UploadCoverImage(IFormFile file)

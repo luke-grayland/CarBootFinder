@@ -28,6 +28,6 @@ public class SalesByRegion
             return new OkObjectResult(sales);    
         }
         
-        return new BadRequestErrorMessageResult("HTTP route not supported");
+        return new NotFoundResult();
     }
 }
