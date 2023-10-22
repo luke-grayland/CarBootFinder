@@ -1,3 +1,4 @@
+using System;
 using MongoDB.Driver;
 
 namespace CarBootFinderAPI.Shared.Services;
@@ -13,6 +14,6 @@ public class DatabaseService : IDatabaseService
 
     public IMongoDatabase GetDb()
     {
-        return _mongoClient.GetDatabase("CarBootFinder");
+        return _mongoClient.GetDatabase(Environment.GetEnvironmentVariable("Db_Name"));
     }
 }
