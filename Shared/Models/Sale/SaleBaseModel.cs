@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CarBootFinderAPI.Shared.Models.SaleInfo;
 using MongoDB.Bson.Serialization.Attributes;
@@ -73,5 +74,8 @@ public abstract class SaleBaseModel
     public OrganiserDetailsModel OrganiserDetails { get; set; }
     
     [BsonElement("coverImage")]
-    public string CoverImageUrl { get; set; }   
+    public string CoverImageUrl { get; set; }
+    
+    [BsonElement("dateCreated")]
+    public DateTime DateCreated { get; set; }
 }

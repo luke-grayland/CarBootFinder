@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using CarBootFinderAPI.Shared.Constants;
 
 namespace CarBootFinderAPI.Functions.Sales;
 
@@ -24,15 +25,21 @@ public class SalesByLocation
     
     [FunctionName("SalesByLocation")]
     public async Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sales/near/{longitude}/{latitude}")] HttpRequest req, 
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sales/near/{longitude}/{latitude}")] 
+        HttpRequest req, 
         float longitude, 
         float latitude)
     {
         if (req.Method == HttpMethods.Get)
         {
+            if (!int.TryParse(req.Query["pageNumber"], out var pageNumber) || pageNumber <= 0)
+                return new BadRequestErrorMessageResult(Constants.ErrorMessages.PageNumberQueryInvalid);
+            
             var location = _saleAssembler.AssembleLocation(longitude, latitude);
-            var results = await _saleRepository.GetSalesByNearest(location);
+            
+            var results = await _saleRepository.GetSalesByNearest(location, pageNumber);
             var sales = _saleAssembler.CalculateDistance(results);
+            
             return new OkObjectResult(sales);    
         }
         

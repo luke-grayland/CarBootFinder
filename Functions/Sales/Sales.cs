@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using System.Web.Http;
 using CarBootFinderAPI.Shared.Assemblers;
+using CarBootFinderAPI.Shared.Constants;
 using CarBootFinderAPI.Shared.Repositories;
 using CarBootFinderAPI.Shared.Services;
 using Microsoft.AspNetCore.Http;
@@ -44,7 +45,10 @@ public class Sales
 
         if (req.Method == HttpMethods.Get)
         {
-            var sales = await _saleRepository.GetAllAsync();
+            if (!int.TryParse(req.Query["pageNumber"], out var pageNumber) || pageNumber <= 0)
+                return new BadRequestErrorMessageResult(Constants.ErrorMessages.PageNumberQueryInvalid);
+                
+            var sales = await _saleRepository.GetAllAsync(pageNumber);
             return new OkObjectResult(sales);    
         }
 

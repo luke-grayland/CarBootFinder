@@ -9,12 +9,12 @@ namespace CarBootFinderAPI.Shared.Repositories;
 public interface ISaleRepository
 {
     Task<SaleModel> GetByIdAsync(string id);
-    Task<IEnumerable<SaleModel>> GetAllAsync();
+    Task<IEnumerable<SaleModel>> GetAllAsync(int pageNumber);
     Task CreateAsync(SaleModel sale);
     Task UpdateAsync(string id, SaleModel sale);
     Task DeleteAsync(string id);
-    Task<List<SaleModel>> GetSalesByNearest(LocationModel locationModel);
-    Task<List<SaleModel>> GetSalesByRegion(string region);
+    Task<List<SaleModel>> GetSalesByNearest(LocationModel locationModel, int pageNumber);
+    Task<List<SaleModel>> GetSalesByRegion(string region, int pageNumber);
     Task<List<SaleModel>> GetUnapprovedSales();
     Task<List<SaleModel>> CheckDuplicateSales(IEnumerable<SaleModel> unapprovedSales);
 }

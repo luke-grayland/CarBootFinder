@@ -19,18 +19,20 @@ public class SaleRepository : ISaleRepository
         _collection = databaseService.GetDb().GetCollection<SaleModel>(Constants.Constants.Collections.Sales);
     }
     
-    public async Task<List<SaleModel>> GetSalesByNearest(LocationModel locationModel)
+    public async Task<List<SaleModel>> GetSalesByNearest(LocationModel locationModel, int pageNumber)
     {
         var pipeline = new []
         {
             BsonDocument.Parse($"{{ $geoNear: {{ near: {{ type: 'Point', coordinates: [{locationModel.Coordinates[0]}, {locationModel.Coordinates[1]}] }}, distanceField: 'location.distanceInMeters', spherical: true }} }}"),
-            BsonDocument.Parse($"{{ $match: {{ adminApproved: true }} }}")
+            BsonDocument.Parse($"{{ $match: {{ adminApproved: true }} }}"),
+            BsonDocument.Parse($"{{ $skip: {GetSkipCount(pageNumber)} }}"),
+            BsonDocument.Parse($"{{ $limit: {Constants.SystemSettings.PageSize} }}")
         };
-
+    
         return await _collection.Aggregate<SaleModel>(pipeline).ToListAsync();
     }
 
-    public async Task<List<SaleModel>> GetSalesByRegion(string region)
+    public async Task<List<SaleModel>> GetSalesByRegion(string region, int pageNumber)
     {
         var matchedRegion = Constants.Constants.Region.AllRegions
             .Select(x => new KeyValuePair<string,string>(x.Key.ToLower(), x.Value))
@@ -41,7 +43,11 @@ public class SaleRepository : ISaleRepository
 
         var filter = GetFilterBase().And(GetAdminApprovedFilter(), GetByRegionFilter(matchedRegion.Value));
         
-        return await _collection.Find(filter).ToListAsync();
+        return await _collection.Find(filter)
+            .SortBy(x => x.Id)
+            .Skip(GetSkipCount(pageNumber))
+            .Limit(Constants.SystemSettings.PageSize)
+            .ToListAsync();
     }
 
     public async Task<List<SaleModel>> GetUnapprovedSales()
@@ -78,9 +84,14 @@ public class SaleRepository : ISaleRepository
         return await _collection.Find(filter).FirstOrDefaultAsync();
     }
 
-    public async Task<IEnumerable<SaleModel>> GetAllAsync()
+    public async Task<IEnumerable<SaleModel>> GetAllAsync(int pageNumber)
     {
-        return await _collection.Find(GetAdminApprovedFilter()).ToListAsync();
+        return await _collection
+            .Find(GetAdminApprovedFilter())
+            .SortBy(x => x.Id)
+            .Skip(GetSkipCount(pageNumber))
+            .Limit(Constants.SystemSettings.PageSize)
+            .ToListAsync();
     }
 
     public async Task CreateAsync(SaleModel sale)
@@ -152,6 +163,11 @@ public class SaleRepository : ISaleRepository
     private static FilterDefinitionBuilder<SaleModel> GetFilterBase()
     {
         return Builders<SaleModel>.Filter;
+    }
+
+    private static int GetSkipCount(int pageNumber)
+    {
+        return pageNumber == 1 ? 0 : (pageNumber - 1) * Constants.SystemSettings.PageSize;
     }
 
 

@@ -76,5 +76,11 @@ public static class Constants
         public const double EarthRadiusKilometers = 6371;
         public const double MeterToMileMultiplier = 0.00062137;
     }
+
+    public static class ErrorMessages
+    {
+        public const string PageNumberQueryInvalid = "Invalid pageNumber query parameter";
+        public const string RegionParameterRequired = "Region parameter is required";
+    }
     
 }

@@ -39,7 +39,8 @@ public class SaleAssembler : ISaleAssembler
             PetFriendly = saleInputModel.PetFriendly,
             OtherInfo = saleInputModel.OtherInfo,
             OrganiserDetails = saleInputModel.OrganiserDetails,
-            CoverImageUrl = saleInputModel.CoverImageUrl
+            CoverImageUrl = saleInputModel.CoverImageUrl,
+            DateCreated = DateTime.Now
         };
     }
 
@@ -118,7 +119,7 @@ public class SaleAssembler : ISaleAssembler
     {
         return new LocationModel()
         {
-            Coordinates = new double[] { longitude, latitude }
+            Coordinates = new [] { longitude, latitude }
         };
     }
 
