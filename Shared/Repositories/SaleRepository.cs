@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CarBootFinderAPI.Shared.Models.Sale;
 using CarBootFinderAPI.Shared.Models.SaleInfo;
@@ -50,6 +51,21 @@ public class SaleRepository : ISaleRepository
             .ToListAsync();
     }
 
+    public async Task<List<SaleModel>> GetSalesByPhrase(string phrase, int pageNumber)
+    {
+        var cleanPhrase = RemoveSpecialCharacters(phrase);
+        
+        if (string.IsNullOrWhiteSpace(cleanPhrase))
+            throw new ArgumentException("Search phrase empty");
+    
+        var filter = GetFilterBase().And(GetAdminApprovedFilter(), GetByPhraseFilter(cleanPhrase));
+    
+        return await _collection.Find(filter)
+            .Skip(GetSkipCount(pageNumber))
+            .Limit(Constants.SystemSettings.PageSize)
+            .ToListAsync();
+    }
+    
     public async Task<List<SaleModel>> GetUnapprovedSales()
     {
         var getUnapprovedSalesFilter = GetFilterBase().Eq("adminApproved", false);
@@ -160,6 +176,17 @@ public class SaleRepository : ISaleRepository
         return GetFilterBase().Eq("adminApproved", true);
     }
 
+    private static FilterDefinition<SaleModel> GetByPhraseFilter(string phrase)
+    {
+        var nameSearch = GetFilterBase()
+                .Regex("name", new BsonRegularExpression(new Regex(phrase, RegexOptions.IgnoreCase)));
+        
+        var addressSearch = GetFilterBase()
+            .Regex("address", new BsonRegularExpression(new Regex(phrase, RegexOptions.IgnoreCase)));
+
+        return GetFilterBase().Or(nameSearch, addressSearch);
+    }
+
     private static FilterDefinitionBuilder<SaleModel> GetFilterBase()
     {
         return Builders<SaleModel>.Filter;
@@ -170,5 +197,11 @@ public class SaleRepository : ISaleRepository
         return pageNumber == 1 ? 0 : (pageNumber - 1) * Constants.SystemSettings.PageSize;
     }
 
+    private static string RemoveSpecialCharacters(string input)
+    {
+        const string pattern = @"[^a-zA-Z0-9,\s]";
+
+        return Regex.Replace(input, pattern, "");
+    }
 
 }

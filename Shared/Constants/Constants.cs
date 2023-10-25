@@ -80,7 +80,8 @@ public static class Constants
     public static class ErrorMessages
     {
         public const string PageNumberQueryInvalid = "Invalid pageNumber query parameter";
-        public const string RegionParameterRequired = "Region parameter is required";
+        public const string RegionParamRequired = "Region parameter is required";
+        public const string PhraseParamRequired = "Region parameter is required";
     }
     
 }

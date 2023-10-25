@@ -9,30 +9,30 @@ using CarBootFinderAPI.Shared.Constants;
 
 namespace CarBootFinderAPI.Functions.Sales;
 
-public class SalesByRegion
+public class SalesByPhrase
 {
     private readonly ISaleRepository _saleRepository;
     
-    public SalesByRegion(ISaleRepository saleRepository)
+    public SalesByPhrase(ISaleRepository saleRepository)
     {
         _saleRepository = saleRepository; 
     }
 
-    [FunctionName("SalesByRegion")]
+    [FunctionName("SalesByPhrase")]
     public async Task<IActionResult> RunAsync(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sales/region/{region}")] 
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sales/phrase/{phrase}")] 
         HttpRequest req, 
-        string region)
+        string phrase)
     {
         if (req.Method == HttpMethods.Get)
         {
-            if (string.IsNullOrEmpty(region))
-                return new BadRequestErrorMessageResult(Constants.ErrorMessages.RegionParamRequired);
+            if (string.IsNullOrEmpty(phrase))
+                return new BadRequestErrorMessageResult(Constants.ErrorMessages.PhraseParamRequired);
             
             if (!int.TryParse(req.Query["pageNumber"], out var pageNumber) || pageNumber <= 0)
                 return new BadRequestErrorMessageResult(Constants.ErrorMessages.PageNumberQueryInvalid);
 
-            var sales = await _saleRepository.GetSalesByRegion(region, pageNumber);
+            var sales = await _saleRepository.GetSalesByPhrase(phrase, pageNumber);
             
             return new OkObjectResult(sales);    
         }

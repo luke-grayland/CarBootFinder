@@ -15,6 +15,7 @@ public interface ISaleRepository
     Task DeleteAsync(string id);
     Task<List<SaleModel>> GetSalesByNearest(LocationModel locationModel, int pageNumber);
     Task<List<SaleModel>> GetSalesByRegion(string region, int pageNumber);
+    Task<List<SaleModel>> GetSalesByPhrase(string phrase, int pageNumber);
     Task<List<SaleModel>> GetUnapprovedSales();
     Task<List<SaleModel>> CheckDuplicateSales(IEnumerable<SaleModel> unapprovedSales);
 }
